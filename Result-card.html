@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Result Card — Moinuddin Adarsha Mohila College</title>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --navy: #0d2b45; --navy2: #174070; --navy3: #1f5490;
+      --gold: #a97c28; --gold2: #c9973a; --gold3: #e8b84b;
+      --slate: #f1f4f8; --slate2: #e8ecf2; --white: #fff;
+      --txt: #0f172a; --txt2: #334155; --muted: #64748b;
+      --border: #dde3ed; --border2: #c8d2e0;
+      --red: #b91c1c; --green: #166534;
+      --shadow-sm: 0 1px 4px rgba(13,43,69,.08);
+      --shadow-lg: 0 8px 32px rgba(13,43,69,.14);
+      --r: 6px; --r-md: 10px; --r-lg: 14px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Source Sans 3', sans-serif; background: var(--slate); color: var(--txt); display: flex; flex-direction: column; }
+
+    /* ═══ TOP NAV ═══ */
+    .top-nav-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 70px; z-index: 201;
+      background: linear-gradient(180deg,#0d2b45 0%,#0a2138 100%);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; border-bottom: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    }
+    .top-nav-logo { display: flex; align-items: center; gap: 14px; }
+    .top-nav-logo-img { width: 48px; height: 48px; border-radius: 50%; background: #fff; border: 2.5px solid var(--gold2); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .top-nav-logo-img img { width: 100%; height: 100%; object-fit: contain; }
+    .top-nav-logo-text h1 { font-family: 'Merriweather', serif; font-size: .85rem; font-weight: 700; color: #fff; }
+    .top-nav-logo-text p { font-size: .58rem; color: rgba(255,255,255,.5); margin-top: 2px; }
+    .top-nav-admin { display: flex; align-items: center; gap: 16px; }
+    .top-nav-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--gold2); display: flex; align-items: center; justify-content: center; font-size: .95rem; font-weight: 700; color: #fff; }
+    .top-nav-name { font-size: .78rem; font-weight: 700; color: #fff; }
+    .top-nav-role { font-size: .65rem; color: rgba(255,255,255,.7); }
+    .logout-btn { padding: 8px 16px; border-radius: var(--r); border: 1px solid rgba(255,255,255,.3); background: transparent; color: #fff; font-size: .78rem; font-family: inherit; cursor: pointer; font-weight: 600; transition: all .15s; }
+    .logout-btn:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.6); }
+    .hdr-hamburger { display: none; background: none; border: none; color: #fff; font-size: 1.4rem; cursor: pointer; width: 32px; height: 32px; align-items: center; justify-content: center; }
+    .hdr-hamburger:hover { background: rgba(255,255,255,.1); border-radius: var(--r); }
+
+    /* ═══ SIDEBAR ═══ */
+    .site-header {
+      background: linear-gradient(180deg,#0d2b45 0%,#0a2138 100%);
+      position: fixed; left: 0; top: 70px; width: 220px; height: calc(100vh - 70px);
+      z-index: 200; border-right: 1px solid rgba(255,255,255,.06);
+      box-shadow: 4px 0 16px rgba(0,0,0,.3); display: flex; flex-direction: column; overflow-y: auto;
+    }
+    .nav-strip { display: flex; flex-direction: column; padding: 16px 0; background: rgba(0,0,0,.2); flex: 1; }
+    .nt { padding: 12px 16px; cursor: pointer; font-size: .79rem; font-weight: 500; border-left: 3px solid transparent; color: rgba(255,255,255,.55); transition: color .15s, border-color .15s, background .15s; display: flex; align-items: center; text-decoration: none; }
+    .nt:hover { color: rgba(255,255,255,.88); background: rgba(255,255,255,.05); }
+    .nt.active { color: var(--gold3); border-left-color: var(--gold2); background: rgba(255,255,255,.08); }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 190; }
+    .sidebar-overlay.active { display: block; }
+
+    /* ═══ MAIN ═══ */
+    .main { margin-left: 220px; margin-top: 70px; padding: 28px 24px; flex: 1; }
+
+    /* ═══ PAGE HEADER ═══ */
+    .pg-hd { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .pg-hd h2 { font-family: 'Merriweather', serif; font-size: 1.2rem; font-weight: 700; color: var(--navy); }
+    .pg-hd p { font-size: .78rem; color: var(--muted); margin-top: 3px; }
+
+    /* ═══ CARDS ═══ */
+    .card { background: var(--white); border-radius: var(--r-lg); border: 1px solid var(--border); box-shadow: var(--shadow-sm); margin-bottom: 20px; overflow: hidden; }
+    .card-head { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .card-head h3 { font-family: 'Merriweather', serif; font-size: .92rem; font-weight: 700; color: var(--navy); }
+    .card-head .meta { font-size: .72rem; color: var(--muted); }
+    .card-body { padding: 20px; }
+
+    /* ═══ FORMS ═══ */
+    .fg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+    .fg { display: flex; flex-direction: column; gap: 5px; }
+    .fg label { font-size: .74rem; font-weight: 600; color: var(--navy); }
+    .fg input, .fg select { padding: 8px 11px; border: 1.5px solid var(--border2); border-radius: var(--r); font-size: .83rem; font-family: inherit; background: #fafcff; color: var(--txt); transition: border .15s; }
+    .fg input:focus, .fg select:focus { outline: none; border-color: var(--navy3); box-shadow: 0 0 0 3px rgba(31,84,144,.1); }
+
+    /* ═══ BUTTONS ═══ */
+    .btn { padding: 8px 18px; border-radius: var(--r); border: none; cursor: pointer; font-family: inherit; font-size: .8rem; font-weight: 600; transition: all .14s; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; }
+    .btn-primary { background: var(--navy); color: #fff; }
+    .btn-primary:hover { background: var(--navy2); }
+    .btn-gold { background: var(--gold); color: #fff; }
+    .btn-gold:hover { background: var(--gold2); }
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-success:hover { background: #15803d; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--navy); color: var(--navy); }
+    .btn-outline:hover { background: var(--navy); color: #fff; }
+    .btn-sm { padding: 5px 12px; font-size: .74rem; }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+
+    /* ═══ ALERTS ═══ */
+    .alert { padding: 10px 14px; border-radius: var(--r); font-size: .79rem; margin-bottom: 12px; border: 1px solid; }
+    .alert-ok { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+    .alert-err { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+    .alert-info { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+
+    /* ═══ EMPTY STATE ═══ */
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+    .es-rule { width: 36px; height: 2px; background: var(--border2); margin: 0 auto 12px; }
+    .empty-state p { font-size: .82rem; line-height: 1.6; }
+
+    /* ═══ LOADING ═══ */
+    .loading-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; gap: 16px; }
+    .loading-spinner { width: 48px; height: 48px; border: 4px solid var(--slate2); border-top-color: var(--navy); border-radius: 50%; animation: spin 1s linear infinite; }
+    .loading-text { font-size: .9rem; color: var(--txt2); font-weight: 500; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* ═══ SUBTAB BAR ═══ */
+    .res-subtab-bar { display: flex; border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; margin-bottom: 20px; background: var(--white); }
+    .res-stab { flex: 1; padding: 11px 18px; cursor: pointer; font-size: .8rem; font-weight: 600; text-align: center; color: var(--muted); transition: all .15s; border-right: 1px solid var(--border); }
+    .res-stab:last-child { border-right: none; }
+    .res-stab.active { background: var(--navy); color: #fff; }
+    .res-stab:not(.active):hover { background: var(--slate); }
+
+    /* ═══ BULK RESULT TABLE ═══ */
+    .bulk-group-section { margin-bottom: 24px; }
+    .bulk-group-hd { background: var(--navy); color: #fff; padding: 10px 16px; font-weight: 700; font-size: .88rem; display: flex; justify-content: space-between; align-items: center; border-radius: var(--r-md) var(--r-md) 0 0; }
+    .bulk-tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--r-md) var(--r-md); }
+    .bulk-tbl { width: 100%; border-collapse: collapse; font-size: .75rem; }
+    .bulk-tbl thead tr:first-child th { background: #1e3a5f; color: #fff; padding: 7px 6px; text-align: center; border: 1px solid #2d5080; font-size: .73rem; }
+    .bulk-tbl thead tr:nth-child(2) th { background: #2a4a70; color: #e2e8f0; padding: 5px 4px; text-align: center; border: 1px solid #3a5a80; font-size: .68rem; }
+    .bulk-tbl td { padding: 5px 6px; border: 1px solid var(--border); text-align: center; font-size: .74rem; }
+    .bulk-tbl tbody tr:nth-child(even) { background: #f8fafc; }
+    .bulk-pass { color: #15803d; font-weight: 700; }
+    .bulk-fail { color: #b91c1c; font-weight: 700; }
+
+    /* ═══ RESULT CARD (print layout) ═══ */
+    .rc-page {
+      width: 210mm; min-height: 297mm; background: #fff;
+      margin: 0 auto; padding: 8mm 10mm;
+      box-shadow: var(--shadow-lg);
+      font-family: 'Times New Roman', 'Merriweather', serif; font-size: 11pt;
+    }
+    .rc-college-hdr { display: grid; grid-template-columns: 115px 1fr 125px; align-items: center; gap: 8px; margin-bottom: 6px; padding-bottom: 8px; border-bottom: 2.5px solid #000; }
+    .rc-col-left { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .rc-stu-photo { width: 90px; height: 112px; object-fit: cover; border: 2px solid #444; display: block; }
+    .rc-stu-photo-ph { width: 90px; height: 112px; border: 2px solid #ccc; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 8pt; color: #888; text-align: center; }
+    .rc-stu-photo-lbl { font-size: 7pt; color: #666; text-align: center; margin-top: 1px; }
+    .rc-col-mid { text-align: center; }
+    .rc-col-mid h1 { font-size: 14pt; font-weight: 700; color: #000; letter-spacing: .4px; margin-bottom: 3px; line-height: 1.2; }
+    .rc-college-logo { width: 80px; height: 80px; border-radius: 50%; object-fit: contain; border: 1.5px solid #ccc; display: block; margin: 4px auto; }
+    .rc-col-mid p { font-size: 9pt; color: #333; margin-bottom: 1px; }
+    .transcript-lbl { font-size: 12pt; font-weight: 700; margin-top: 5px; display: block; }
+    .rc-col-right { text-align: right; }
+    .rc-col-right table { width: 100%; border-collapse: collapse; font-size: 8pt; }
+    .rc-col-right th, .rc-col-right td { border: 1px solid #999; padding: 2px 5px; text-align: center; }
+    .rc-col-right th { background: #e8e8e8; font-weight: 700; }
+    .rc-stu-block { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 16px; font-size: 9.5pt; border: 1px solid #bbb; padding: 6px 10px; margin-bottom: 5px; background: #fdfdfd; }
+    .rc-stu-row { display: flex; gap: 4px; padding: 1px 0; }
+    .rc-stu-lbl { font-weight: 700; min-width: 100px; flex-shrink: 0; }
+    .rc-exam-hdr { text-align: center; font-size: 11pt; font-weight: 700; background: #000; color: #fff; padding: 4px; margin-bottom: 0; }
+    .rc-marks-tbl { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin-bottom: 5px; }
+    .rc-marks-tbl th { background: #333; color: #fff; padding: 4px 5px; text-align: center; border: 1px solid #555; font-weight: 600; font-size: 8pt; }
+    .rc-marks-tbl th.lft { text-align: left; padding-left: 6px; }
+    .rc-marks-tbl td { padding: 3px 5px; border: 1px solid #bbb; text-align: center; vertical-align: middle; }
+    .rc-marks-tbl tbody tr:nth-child(even) { background: #f7f7f7; }
+    .sn { text-align: left !important; padding-left: 6px !important; font-weight: 500; }
+    .rc-marks-tbl tfoot td { background: #333; color: #fff; font-weight: 700; border: 1px solid #555; padding: 4px 5px; }
+    .rc-bottom { display: grid; grid-template-columns: 200px 1fr; gap: 10px; margin-top: 5px; }
+    .rc-summary-box { border: 1px solid #bbb; font-size: 8.5pt; }
+    .rc-summary-box table { width: 100%; border-collapse: collapse; }
+    .rc-summary-box td { padding: 3px 8px; border-bottom: 1px solid #e0e0e0; vertical-align: top; }
+    .rc-summary-box td:first-child { font-weight: 600; width: 90px; }
+    .rc-summary-box tr:last-child td { border-bottom: none; }
+    .rc-qr-center { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+    .rc-sign-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 8px; padding-top: 6px; border-top: 1px solid #ccc; }
+    .rc-sign-box { text-align: center; }
+    .rc-sign-line { height: 40px; border-bottom: 1px solid #555; margin-bottom: 4px; }
+    .rc-sign-lbl { font-size: 8pt; color: #555; }
+    .rc-gen-note { font-size: 7pt; color: #888; text-align: center; margin-top: 6px; padding-top: 5px; border-top: 1px dashed #ccc; }
+
+    /* ═══ RESULT MODAL ═══ */
+    #result-modal { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.6); display: none; align-items: center; justify-content: center; padding: 16px; }
+    .result-modal-card { background: #fff; border-radius: 14px; width: 100%; max-width: 1000px; box-shadow: 0 20px 60px rgba(0,0,0,.3); overflow: auto; max-height: 90vh; }
+    .result-modal-header { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: linear-gradient(180deg,#f8faff 0%,#fff 100%); }
+    .result-modal-header h3 { font-family: 'Merriweather', serif; font-size: .95rem; font-weight: 700; color: var(--navy); margin: 0; }
+    .result-modal-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--muted); width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 4px; }
+    .result-modal-close:hover { background: var(--slate2); }
+    .result-modal-body { padding: 20px; max-height: calc(90vh - 100px); overflow-y: auto; }
+    .result-modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; background: var(--slate); }
+
+    /* ═══ GRADE CHIPS ═══ */
+    .gp { display: inline-block; padding: 1px 8px; border-radius: 10px; font-weight: 800; font-size: .7rem; }
+    .gp-AP { background: #dcfce7; color: #14532d; }
+    .gp-A  { background: #dbeafe; color: #1e3a8a; }
+    .gp-AM { background: #ede9fe; color: #4c1d95; }
+    .gp-B  { background: #fef9c3; color: #713f12; }
+    .gp-C  { background: #fed7aa; color: #7c2d12; }
+    .gp-D  { background: #fecaca; color: #7f1d1d; }
+    .gp-F  { background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5; }
+
+    /* ═══ PRINT ═══ */
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff !important; }
+      .top-nav-bar, .site-header, .rc-sel-card, .res-subtab-bar, .btn-row, .pg-hd { display: none !important; }
+      .main { padding: 0 !important; margin: 0 !important; }
+      .rc-page { width: 210mm !important; padding: 8mm 10mm !important; font-size: 11pt !important; box-shadow: none !important; }
+      #result-modal { display: none !important; }
+    }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 768px) {
+      .hdr-hamburger { display: flex; }
+      .site-header { width: 100%; height: auto; flex-direction: row; align-items: center; padding: 12px 16px; border-right: none; border-bottom: 1px solid rgba(255,255,255,.06); overflow: visible !important; }
+      .nav-strip { position: fixed; left: 0; top: 70px; width: 100%; max-width: 280px; height: calc(100vh - 70px); flex-direction: column; padding: 16px 0; z-index: 250; background: linear-gradient(180deg,#0d2b45 0%,#0a2138 100%); transform: translateX(-100%); transition: transform .3s ease; overflow-y: auto; }
+      .site-header.active .nav-strip { transform: translateX(0); }
+      .main { margin-left: 0; padding: 14px 10px; }
+      .fg-grid { grid-template-columns: 1fr; }
+      .res-subtab-bar { flex-direction: column; }
+      .res-stab { border-right: none; border-bottom: 1px solid var(--border); }
+      .res-stab:last-child { border-bottom: none; }
+      .rc-page { width: 100%; padding: 4mm 3mm; font-size: 9pt; }
+      .rc-college-hdr { grid-template-columns: 70px 1fr 80px; gap: 4px; }
+      .rc-stu-block { grid-template-columns: 1fr; }
+      .rc-bottom { grid-template-columns: 1fr; }
+      .rc-sign-row { grid-template-columns: 1fr; }
+    }
+    @media (min-width: 1280px) { .main { padding: 32px 40px; } }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP NAV -->
+  <div class="top-nav-bar no-print">
+    <div class="top-nav-logo">
+      <div class="top-nav-logo-img">
+        <img src="https://www.muamc.edu.bd/wp-content/uploads/2025/01/logo-muam-scaled.jpeg" alt="Logo">
+      </div>
+      <div class="top-nav-logo-text">
+        <h1>Moinuddin Adarsha Mohila College</h1>
+        <p>Student Database System</p>
+      </div>
+    </div>
+    <div class="top-nav-admin">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="top-nav-avatar" id="nav-avatar">A</div>
+        <div>
+          <div class="top-nav-name" id="nav-name">Admin</div>
+          <div class="top-nav-role" id="nav-role">System Admin</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+      <button class="hdr-hamburger" id="hdr-hamburger" onclick="toggleSidebar()">☰</button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <header class="site-header no-print" id="site-header">
+    <nav class="nav-strip" id="nav-strip">
+      <a class="nt" href="/">Dashboard</a>
+      <a class="nt" href="/student-list.html">Student Management</a>
+      <a class="nt" href="/marks-entry.html">Mark Entry</a>
+      <a class="nt" href="/Teachers.html">Teachers</a>
+      <a class="nt active" href="/Result-card.html">Result Card</a>
+      <a class="nt" href="/Admit-card.html">Admit Card</a>
+      <a class="nt" href="/analytics.html" style="border-top:1px solid rgba(255,255,255,.08);margin-top:8px;padding-top:16px;">Analytics</a>
+    </nav>
+  </header>
+
+  <div class="sidebar-overlay no-print" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <main class="main">
+    <div class="pg-hd no-print">
+      <h2>Result Card</h2>
+      <p>Generate and download examination result cards</p>
+    </div>
+
+    <!-- Sub-tab bar -->
+    <div class="res-subtab-bar no-print">
+      <div class="res-stab active" id="rst-single" onclick="switchResultTab('single')">Individual Result Search</div>
+      <div class="res-stab" id="rst-bulk" onclick="switchResultTab('bulk')">Group-wise All Results</div>
+    </div>
+
+    <!-- ── Single result panel ── -->
+    <div id="res-panel-single">
+      <div class="card rc-sel-card no-print">
+        <div class="card-head">
+          <h3>Result Search</h3>
+          <span class="meta">Search by class, group and roll number</span>
+        </div>
+        <div class="card-body">
+          <div class="fg-grid">
+            <div class="fg">
+              <label>Class *</label>
+              <select id="rs-class" onchange="searchResult()">
+                <option value="">-- Select Class --</option>
+                <option value="Class-XI">Class XI</option>
+                <option value="Class-XII">Class XII</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Group *</label>
+              <select id="rs-group" onchange="searchResult()">
+                <option value="">-- Select Group --</option>
+                <option value="Science">Science</option>
+                <option value="Humanities">Humanities</option>
+                <option value="Business">Business Studies</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Session *</label>
+              <select id="rs-session" onchange="searchResult()">
+                <option value="">-- Select Session --</option>
+                <option value="2022–2023">2022–2023</option>
+                <option value="2023–2024">2023–2024</option>
+                <option value="2024–2025">2024–2025</option>
+                <option value="2025–2026">2025–2026</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Roll Number</label>
+              <input id="rs-roll" placeholder="Enter roll number..." oninput="searchResult()">
+            </div>
+            <div class="fg">
+              <label>Exam Type</label>
+              <select id="r-exam" onchange="searchResult()">
+                <option value="">-- All --</option>
+                <option>Half-Yearly</option>
+                <option>Annual</option>
+                <option>Selection Test</option>
+                <option>Test</option>
+                <option>HSC</option>
+              </select>
+            </div>
+          </div>
+          <div id="rs-match-list" style="margin-top:12px;"></div>
+        </div>
+      </div>
+      <div id="result-output"></div>
+    </div>
+
+    <!-- ── Bulk result panel ── -->
+    <div id="res-panel-bulk" style="display:none;">
+      <div class="card no-print">
+        <div class="card-head">
+          <h3>Group-wise Results for All Students</h3>
+          <span class="meta">With Excel download option</span>
+        </div>
+        <div class="card-body">
+          <div class="fg-grid">
+            <div class="fg">
+              <label>Class</label>
+              <select id="br-class" onchange="loadBulkResult()">
+                <option value="">-- All Classes --</option>
+                <option value="Class-XI">Class XI</option>
+                <option value="Class-XII">Class XII</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Group</label>
+              <select id="br-group" onchange="loadBulkResult()">
+                <option value="">-- All Groups --</option>
+                <option value="Science">Science</option>
+                <option value="Humanities">Humanities</option>
+                <option value="Business">Business Studies</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Session</label>
+              <select id="br-session" onchange="loadBulkResult()">
+                <option value="">-- All Sessions --</option>
+                <option value="2022–2023">2022–2023</option>
+                <option value="2023–2024">2023–2024</option>
+                <option value="2024–2025">2024–2025</option>
+                <option value="2025–2026">2025–2026</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Exam Type</label>
+              <select id="br-exam" onchange="loadBulkResult()">
+                <option value="">-- All --</option>
+                <option>Half-Yearly</option>
+                <option>Annual</option>
+                <option>Selection Test</option>
+                <option>Test</option>
+                <option>HSC</option>
+              </select>
+            </div>
+          </div>
+          <div class="btn-row" style="margin-top:14px;">
+            <button class="btn btn-success" onclick="downloadExcel()">⬇ Download Excel</button>
+            <button class="btn btn-primary" onclick="window.print()">🖨 Print</button>
+          </div>
+        </div>
+      </div>
+      <div id="bulk-result-output">
+        <div class="card">
+          <div class="card-body">
+            <div class="empty-state"><div class="es-rule"></div><p>Please select both Class and Group to view results.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Result Modal -->
+  <div id="result-modal">
+    <div class="result-modal-card">
+      <div class="result-modal-header">
+        <h3 id="result-modal-title">Result Card</h3>
+        <button class="result-modal-close" onclick="closeResultModal()">✕</button>
+      </div>
+      <div class="result-modal-body" id="result-modal-body"></div>
+      <div class="result-modal-footer no-print">
+        <button class="btn btn-primary" onclick="printResultModal()">🖨 Print</button>
+        <button class="btn btn-gold" onclick="downloadResultModalPDF()">⬇ Download PDF</button>
+        <button class="btn btn-outline" onclick="closeResultModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── API wrapper ────────────────────────────────────────────────────────
+    (function () {
+      const base = window.API_BASE !== undefined ? window.API_BASE : 'http://localhost:5000';
+      window.API_BASE = base;
+      const orig = window.fetch;
+      window.fetch = function () {
+        const args = Array.prototype.slice.call(arguments);
+        if (typeof args[0] === 'string' && args[0].startsWith('/api')) args[0] = base + args[0];
+        args[1] = Object.assign({ credentials: 'include' }, args[1] || {});
+        return orig.apply(window, args);
+      };
+    })();
+
+    // ── Sidebar ────────────────────────────────────────────────────────────
+    function toggleSidebar() {
+      document.getElementById('site-header').classList.toggle('active');
+      document.getElementById('sidebar-overlay').classList.toggle('active');
+    }
+    function closeSidebar() {
+      document.getElementById('site-header').classList.remove('active');
+      document.getElementById('sidebar-overlay').classList.remove('active');
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeSidebar();
+        const m = document.getElementById('result-modal');
+        if (m && m.style.display === 'flex') closeResultModal();
+      }
+    });
+    document.addEventListener('click', e => {
+      if (e.target === document.getElementById('result-modal')) closeResultModal();
+    });
+
+    // ── Utils ──────────────────────────────────────────────────────────────
+    function $(id) { return document.getElementById(id); }
+    function $$(id) { return ($(id) || {}).value || ''; }
+    function v(id) { return $$(id).trim(); }
+
+    // ── Subjects ───────────────────────────────────────────────────────────
+    const SUBS = {
+      'Science': [
+        { cat: 'Common Subjects', items: [
+          { name: 'Bangla 1st Paper', code: '101', hasPrac: false, cqMax: 70, mcqMax: 30, isRequired: true },
+          { name: 'Bangla 2nd Paper', code: '102', hasPrac: false, cqMax: 70, mcqMax: 30, isRequired: true },
+          { name: 'English 1st Paper', code: '107', hasPrac: false, cqMax: 70, mcqMax: 30, isRequired: true },
+          { name: 'English 2nd Paper', code: '108', hasPrac: false, cqMax: 70, mcqMax: 30, isRequired: true },
+          { name: 'ICT', code: '275', hasPrac: false, cqMax: 70, mcqMax: 30, isRequired: true }
+        ]},
+        { cat: 'Science Group Subjects', items: [
+          { name: 'Physics 1st Paper', code: '174', hasPrac: true, cqMax: 50, mcqMax: 25, isRequired: true },
+          { name: 'Physics 2nd Paper', code: '175', hasPrac: true, cqMax: 50, mcqMax: 25, isRequired: true },
+          { name: 'Chemistry 1st Paper', code: '176', hasPrac: true, cqMax: 50, mcqMax: 25, isRequired: true },
+          { name: 'Chemistry 2nd Paper', code: '177', hasPrac: true, cqMax: 50, mcqMax: 25, isRequired: true },
+          { name: 'Biology 1st Paper', code: '178', hasPrac: true, cqMax: 50, mcqMax: 25, optionalGroup: 'scienceBio' },
+          { name: 'Biology 2nd Paper', code: '179', hasPrac: true, cqMax: 50, mcqMax: 25, optionalGroup: 'scienceBio' },
+          { name: 'Higher Mathematics 1st Paper', code: '265', hasPrac: true, cqMax: 50, mcqMax: 25, optionalGroup: 'scienceMath' },
+          { name: 'Higher Mathematics 2nd Paper', code: '266', hasPrac: true, cqMax: 50, mcqMax: 25, optionalGroup: 'scienceMath' }
+        ]}
+      ],
+      'Humanities': [
+        { cat: 'Common Subjects', items: [
+          { name: 'Bangla 1st Paper', code: '101', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'Bangla 2nd Paper', code: '102', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'English 1st Paper', code: '107', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'English 2nd Paper', code: '108', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'ICT', code: '275', hasPrac: false, cqMax: 70, mcqMax: 30 }
+        ]},
+        { cat: 'Humanities Group Subjects', items: [
+          { name: 'Civics & Good Governance 1st Paper', code: '269', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'Civics & Good Governance 2nd Paper', code: '270', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'History of Bangladesh & World Civilization', code: '304', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'Economics 1st Paper', code: '109', hasPrac: false, cqMax: 70, mcqMax: 30, optionalGroup: 'humEcon' },
+          { name: 'Economics 2nd Paper', code: '110', hasPrac: false, cqMax: 70, mcqMax: 30, optionalGroup: 'humEcon' },
+          { name: 'Sociology', code: '116', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'Social Work 1st Paper', code: '271', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'Social Work 2nd Paper', code: '272', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'Logic 1st Paper', code: '121', hasPrac: false, cqMax: 70, mcqMax: 30, optionalGroup: 'humLogic' },
+          { name: 'Logic 2nd Paper', code: '122', hasPrac: false, cqMax: 70, mcqMax: 30, optionalGroup: 'humLogic' },
+          { name: 'Islamic History & Culture', code: '267', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'Optional Subject', code: '111', hasPrac: false, cqMax: 70, mcqMax: 30 }
+        ]}
+      ],
+      'Business': [
+        { cat: 'Common Subjects', items: [
+          { name: 'Bangla 1st Paper', code: '101', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'Bangla 2nd Paper', code: '102', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'English 1st Paper', code: '107', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'English 2nd Paper', code: '108', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'ICT', code: '275', hasPrac: false, cqMax: 70, mcqMax: 30 }
+        ]},
+        { cat: 'Business Studies Group Subjects', items: [
+          { name: 'Accounting 1st Paper', code: '253', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'Accounting 2nd Paper', code: '254', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'Business Org. & Mgmt 1st', code: '277', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'Business Org. & Mgmt 2nd', code: '278', hasPrac: false, cqMax: 70, mcqMax: 30 },
+          { name: 'Finance, Banking & Insurance 1st', code: '292', hasPrac: false, cqMax: 70, mcqMax: 30, optionalGroup: 'busFBI' },
+          { name: 'Finance, Banking & Insurance 2nd', code: '293', hasPrac: false, cqMax: 70, mcqMax: 30, optionalGroup: 'busFBI' },
+          { name: 'Production Mgmt & Marketing 1st', code: '294', hasPrac: false, cqMax: 70, mcqMax: 30, optionalGroup: 'busPMM' },
+          { name: 'Production Mgmt & Marketing 2nd', code: '295', hasPrac: false, cqMax: 70, mcqMax: 30, optionalGroup: 'busPMM' }
+        ]}
+      ]
+    };
+
+    const OPTIONAL_SUBJECTS = {
+      'Science': [
+        { id: 'scienceBio', label: 'Biology (1st & 2nd Paper)', codes: ['178','179'] },
+        { id: 'scienceMath', label: 'Higher Mathematics (1st & 2nd Paper)', codes: ['265','266'] }
+      ],
+      'Humanities': [
+        { id: 'humLogic', label: 'Logic (1st & 2nd Paper)', codes: ['121','122'] },
+        { id: 'humEcon', label: 'Economics (1st & 2nd Paper)', codes: ['109','110'] }
+      ],
+      'Business': [
+        { id: 'busFBI', label: 'Finance, Banking & Insurance (1st & 2nd Paper)', codes: ['292','293'] },
+        { id: 'busPMM', label: 'Production Management & Marketing (1st & 2nd Paper)', codes: ['294','295'] }
+      ]
+    };
+
+    function flatSubs(g) { return (SUBS[g] || []).flatMap(c => c.items); }
+
+    function isOptionalForFailCount(sub, selectedOptionalId) {
+      if (!sub.optionalGroup) return false;
+      return sub.optionalGroup === selectedOptionalId;
+    }
+
+    function grade(m) {
+      if (m >= 80) return { l: 'A+', g: 5.0 }; if (m >= 70) return { l: 'A', g: 4.0 };
+      if (m >= 60) return { l: 'A-', g: 3.5 }; if (m >= 50) return { l: 'B', g: 3.0 };
+      if (m >= 40) return { l: 'C', g: 2.0 }; if (m >= 33) return { l: 'D', g: 1.0 };
+      return { l: 'F', g: 0.0 };
+    }
+    function clampGPA(v) { const n = parseFloat(v) || 0; return n > 5.0 ? 5.0 : n < 0 ? 0.0 : n; }
+    function getLogoSrc() { return 'https://www.muamc.edu.bd/wp-content/uploads/2025/01/logo-muam-scaled.jpeg'; }
+
+    // ── In-memory data cache ────────────────────────────────────────────────
+    let _students = [];
+    let _marks = {};
+
+    async function loadData() {
+      const [sRes, mRes] = await Promise.all([
+        fetch('/api/students').then(r => r.json()),
+        fetch('/api/marks').then(r => r.json())
+      ]);
+      _students = (sRes.ok && sRes.data) || [];
+      _marks = (mRes.ok && mRes.data) || {};
+    }
+
+    // ── Sub-tab switch ─────────────────────────────────────────────────────
+    function switchResultTab(tab) {
+      $('rst-single').classList.toggle('active', tab === 'single');
+      $('rst-bulk').classList.toggle('active', tab === 'bulk');
+      $('res-panel-single').style.display = tab === 'single' ? '' : 'none';
+      $('res-panel-bulk').style.display = tab === 'bulk' ? '' : 'none';
+    }
+
+    // ── Search result ──────────────────────────────────────────────────────
+    function searchResult() {
+      const cls = $$('rs-class'), grp = $$('rs-group'), sn = $$('rs-session'), roll = v('rs-roll');
+      $('result-output').innerHTML = '';
+      const ml = $('rs-match-list');
+      if (!cls && !grp && !sn && !roll) { ml.innerHTML = ''; return; }
+
+      let ss = _students;
+      if (cls) ss = ss.filter(s => s.cls === cls);
+      if (grp) ss = ss.filter(s => s.group === grp);
+      if (sn) {
+        const normSn = sn.replace(/–/g, '-');
+        ss = ss.filter(s => (s.session || s.year || '').replace(/–/g, '-') === normSn);
+      }
+      if (roll) ss = ss.filter(s => s.roll.includes(roll) || s.name.toLowerCase().includes(roll.toLowerCase()));
+
+      if (!ss.length) { ml.innerHTML = '<div class="alert alert-info">No students found.</div>'; return; }
+
+      const et = $$('r-exam');
+      ml.innerHTML = ss.map(s => {
+        const examKeys = _marks[s.id] ? Object.keys(_marks[s.id]).filter(k => k !== 'selectedOptional') : [];
+        const hasMarks = examKeys.length > 0;
+        const examText = hasMarks ? examKeys.join(', ') : 'No exams recorded';
+        return `<div class="card" style="margin-bottom:12px;">
+  <div class="card-head">
+    <h3 style="font-size:.85rem;">${s.name}</h3>
+    <span class="meta">${s.cls} — ${s.group} Group</span>
+  </div>
+  <div class="card-body" style="padding:14px 20px;">
+    <div class="alert alert-ok" style="margin-bottom:12px;">
+      <strong>${s.name}</strong> &nbsp;|&nbsp; Roll: ${s.roll}
+      &nbsp;|&nbsp; Reg: ${s.reg || '—'}
+      &nbsp;|&nbsp; Session: ${s.session || '—'}
+      &nbsp;|&nbsp; Exams: <em>${examText}</em>
+    </div>
+    <div class="btn-row" style="margin-top:0;">
+      ${hasMarks
+        ? `<button class="btn btn-primary btn-sm" onclick="openResultModal('${s.id}')">View Full Result</button>`
+        : `<span style="font-size:.75rem;color:#92400e;font-weight:600;">No Marks Entered</span>`}
+    </div>
+  </div>
+</div>`;
+      }).join('');
+    }
+
+    // ── Bulk result ────────────────────────────────────────────────────────
+    function loadBulkResult() {
+      const cls = $$('br-class'), grp = $$('br-group'), sn = $$('br-session'), et = $$('br-exam');
+      const out = $('bulk-result-output');
+
+      if (!cls || !grp) {
+        out.innerHTML = `<div class="card"><div class="card-body"><div class="empty-state"><div class="es-rule"></div><p>Please select both Class and Group to view results.</p></div></div></div>`;
+        return;
+      }
+
+      out.innerHTML = `<div class="loading-container"><div class="loading-spinner"></div><div class="loading-text">Loading results...</div></div>`;
+
+      setTimeout(() => {
+        let ss = _students.filter(s => s.cls === cls && s.group === grp);
+        if (sn) {
+          const normSn = sn.replace(/–/g, '-');
+          ss = ss.filter(s => (s.session || s.year || '').replace(/–/g, '-') === normSn);
+        }
+        if (!ss.length) {
+          out.innerHTML = `<div class="card"><div class="card-body"><div class="empty-state"><div class="es-rule"></div><p>No students found.</p></div></div></div>`;
+          return;
+        }
+
+        const subs = flatSubs(grp);
+        let html = `<div class="bulk-group-section">
+          <div class="bulk-group-hd">
+            <span>${grp} Group — ${cls}</span>
+            <span style="font-size:.75rem;opacity:.75;">${ss.length} Students</span>
+          </div>
+          <div class="bulk-tbl-wrap"><table class="bulk-tbl"><thead>
+            <tr>
+              <th rowspan="2">#</th><th rowspan="2">Name</th><th rowspan="2">Roll</th><th rowspan="2">Reg. No.</th>
+              ${subs.map(s => `<th colspan="3">${s.name.split('(')[0].trim()}</th>`).join('')}
+              <th rowspan="2">Total</th><th rowspan="2">GPA</th><th rowspan="2">Result</th>
+            </tr>
+            <tr>${subs.map(s => `<th>CQ</th><th>MCQ</th><th>${s.hasPrac ? 'PR' : '—'}</th>`).join('')}</tr>
+          </thead><tbody>`;
+
+        ss.forEach((stu, i) => {
+          const examKeys = _marks[stu.id] ? Object.keys(_marks[stu.id]) : [];
+          const tgt = et || examKeys[examKeys.length - 1];
+          const marks = (tgt && _marks[stu.id] && _marks[stu.id][tgt]) ? _marks[stu.id][tgt] : {};
+          let tGPA = 0, cnt = 0, fail = 0, tMark = 0;
+
+          const subCells = subs.map(sub => {
+            const m = marks[sub.code] || {};
+            const cq = Math.min(+m.cq || 0, sub.cqMax), mcq = Math.min(+m.mcq || 0, sub.mcqMax);
+            const prac = sub.hasPrac ? (+m.prac || 0) : 0;
+            const theory = cq + mcq, tot = theory + prac, g = grade(tot);
+            const absent = (m.cq === undefined || m.cq === '') && (m.mcq === undefined || m.mcq === '');
+            tGPA += absent ? 0 : g.g; cnt++;
+            if (!absent && g.l === 'F') fail++;
+            tMark += absent ? 0 : tot;
+            const fc = g.l === 'F' && !absent ? 'color:#b91c1c;font-weight:700;' : '';
+            return `<td style="${fc}">${absent ? '—' : (cq||0)}</td><td style="${fc}">${absent ? '—' : (mcq||0)}</td><td>${sub.hasPrac ? (absent ? '—' : (prac||0)) : '—'}</td>`;
+          }).join('');
+
+          const avg = clampGPA(cnt > 0 ? tGPA / cnt : 0).toFixed(2);
+          const passed = fail === 0;
+          html += `<tr>
+            <td>${i + 1}</td>
+            <td style="text-align:left;font-weight:600;">${stu.name}</td>
+            <td>${stu.roll}</td><td>${stu.reg || '—'}</td>
+            ${subCells}
+            <td style="font-weight:700;">${tMark || '—'}</td>
+            <td style="font-weight:700;">${tMark ? avg : '—'}</td>
+            <td class="${passed && tMark ? 'bulk-pass' : 'bulk-fail'}">${tMark ? (passed ? 'Pass' : 'Fail') : '—'}</td>
+          </tr>`;
+        });
+
+        html += `</tbody></table></div></div>`;
+        out.innerHTML = html;
+      }, 400);
+    }
+
+    // ── Excel download ─────────────────────────────────────────────────────
+    function downloadExcel() {
+      const cls = $$('br-class'), grp = $$('br-group'), et = $$('br-exam');
+      if (!cls || !grp) { alert('Please select both Class and Group.'); return; }
+      let ss = _students.filter(s => s.cls === cls && s.group === grp);
+      if (!ss.length) { alert('No students found.'); return; }
+      const subs = flatSubs(grp);
+      const header = ['#','Name','Roll Number','Registration'];
+      subs.forEach(s => { const nm = s.name.split('(')[0].trim(); header.push(nm+' (CQ)', nm+' (MCQ)', nm+(s.hasPrac?' (PR)':' (—)')); });
+      header.push('Total Marks','GPA','Result');
+      const rows = [];
+      ss.forEach((stu, i) => {
+        const examKeys = _marks[stu.id] ? Object.keys(_marks[stu.id]).filter(k => k !== 'selectedOptional') : [];
+        const tgt = et || examKeys[examKeys.length - 1];
+        const marks = (tgt && _marks[stu.id] && _marks[stu.id][tgt]) ? _marks[stu.id][tgt] : {};
+        let tGPA = 0, cnt = 0, fail = 0, tMark = 0;
+        const row = [i+1, stu.name, stu.roll, stu.reg || ''];
+        subs.forEach(sub => {
+          const m = marks[sub.code] || {};
+          const cq = Math.min(+m.cq||0,sub.cqMax), mcq = Math.min(+m.mcq||0,sub.mcqMax), prac = sub.hasPrac?(+m.prac||0):0;
+          const g_ = grade(cq+mcq);
+          const absent = (m.cq===undefined||m.cq==='')&&(m.mcq===undefined||m.mcq==='');
+          tGPA += absent?0:g_.g; cnt++; tMark += absent?0:(cq+mcq+prac);
+          if (!absent && g_.l==='F') fail++;
+          row.push(absent?'':(cq||0), absent?'':(mcq||0), sub.hasPrac?(absent?'':(prac||0)):'');
+        });
+        const avg = clampGPA(cnt>0?tGPA/cnt:0).toFixed(2);
+        row.push(tMark||'', tMark?avg:'', tMark?(fail===0?'Pass':'Fail'):'');
+        rows.push(row);
+      });
+      const csv = [header,...rows].map(r=>r.map(c=>{const s=String(c).replace(/"/g,'""');return s.includes(',')||s.includes('"')||s.includes('\n')?`"${s}"`:s;}).join(',')).join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
+      a.download = `Results_${grp}_${cls}.csv`;
+      a.click(); URL.revokeObjectURL(a.href);
+    }
+
+    // ── Open result modal ──────────────────────────────────────────────────
+    function openResultModal(id) {
+      const stu = _students.find(s => s.id === id);
+      if (!stu) return;
+      $('result-modal-title').textContent = stu.name + ' (' + stu.roll + ' — ' + stu.cls + ')';
+      $('result-modal-body').innerHTML = '<div class="empty-state"><p>Loading result card...</p></div>';
+      $('result-modal').style.display = 'flex';
+
+      const db = _marks;
+      const avail = db[id] ? Object.keys(db[id]).filter(k => k !== 'selectedOptional') : [];
+      const tgt = $$('r-exam') || avail[avail.length - 1] || null;
+      if (!tgt || !db[id] || !db[id][tgt]) {
+        $('result-modal-body').innerHTML = '<div class="card"><div class="card-body"><div class="empty-state"><div class="es-rule"></div><p>No marks found. Please enter marks first.</p></div></div></div>';
+        return;
+      }
+      loadResultIntoModal(id, tgt);
+    }
+
+    function closeResultModal() {
+      $('result-modal').style.display = 'none';
+      $('result-modal-body').innerHTML = '';
+    }
+
+    function loadResultIntoModal(id, examType) {
+      const body = $('result-modal-body');
+      const stu = _students.find(s => s.id === id);
+      if (!stu) return;
+      const db = _marks;
+      const marks = db[id][examType];
+      const cats = SUBS[stu.group] || [];
+      const subs = flatSubs(stu.group);
+      const optionalSelected = marks.selectedOptional;
+
+      // Merit position
+      const peers = _students.filter(s => s.cls === stu.cls && s.group === stu.group);
+      const peerScores = peers.map(p => {
+        const pMarks = db[p.id] || {};
+        const pKey = Object.keys(pMarks).includes(examType) ? examType : (Object.keys(pMarks).pop() || null);
+        if (!pKey || !pMarks[pKey]) return { id: p.id, gpa: 0, total: 0 };
+        const pm = pMarks[pKey]; const pOpt = pm.selectedOptional;
+        let pGPA = 0, pCnt = 0, pTotal = 0;
+        flatSubs(p.group).forEach(sub => {
+          const m = pm[sub.code] || {};
+          if (!m || (m.cq === '' && m.mcq === '')) return;
+          const cq = Math.min(+m.cq||0,sub.cqMax), mcq = Math.min(+m.mcq||0,sub.mcqMax);
+          const prac = sub.hasPrac?(+m.prac||0):0;
+          const { g } = grade(cq+mcq);
+          if (isOptionalForFailCount(sub, pOpt)) { if (g > 2.0) pGPA += (g-2.0); }
+          else { pGPA += g; pCnt++; }
+          pTotal += cq+mcq+prac;
+        });
+        return { id: p.id, gpa: pCnt > 0 ? pGPA/pCnt : 0, total: pTotal };
+      });
+      peerScores.sort((a,b) => b.gpa - a.gpa || b.total - a.total);
+      const meritPos = peerScores.findIndex(p => p.id === id) + 1;
+      const meritTotal = peerScores.length;
+
+      let tGPA = 0, cnt = 0, fail = 0, tMark = 0, mMax = 0, failSubs = [];
+      const ey = Object.values(marks)[0]?.ey || stu.year || '2024-2025';
+      const clsLabel = stu.cls;
+      const grpLabel = stu.group === 'Business' ? 'Business Studies' : stu.group;
+
+      let tableRows = '';
+      cats.forEach((cat, ci) => {
+        if (ci > 0) tableRows += `<tr><td colspan="10" style="background:#e8e8e8;font-weight:700;text-align:center;padding:3px 6px;font-size:8pt;border:1px solid #bbb;">${cat.cat}</td></tr>`;
+        cat.items.forEach(sub => {
+          const m = marks[sub.code] || {};
+          const cq = Math.min(+m.cq||0, sub.cqMax), mcq = Math.min(+m.mcq||0, sub.mcqMax);
+          const prac = sub.hasPrac ? (+m.prac||0) : 0;
+          const theory = cq+mcq, tot = theory+prac, g = grade(tot);
+          const absent = (m.cq===''||m.cq===undefined)&&(m.mcq===''||m.mcq===undefined);
+          const lg = absent ? 'Ab' : g.l;
+          const gpa = absent ? 0 : g.g;
+          const isSelOpt = isOptionalForFailCount(sub, optionalSelected);
+          if (!absent) {
+            if (isSelOpt) { if (gpa > 2.0) tGPA += (gpa-2.0); }
+            else { tGPA += gpa; cnt++; }
+            tMark += tot;
+          }
+          mMax += (sub.cqMax||70)+(sub.mcqMax||30)+(sub.hasPrac?25:0);
+          if (lg==='F' && !isSelOpt && !absent) { fail++; failSubs.push(sub.name); }
+          const isOpt = sub.optionalGroup === optionalSelected;
+          tableRows += `<tr style="${g.l==='F'?'background:#fff8f8;':''}">
+            <td class="sn">${sub.name}${isOpt?' <span style="font-size:7pt;color:#0d2b45;background:#e8f4f8;padding:1px 4px;border-radius:2px;">(Optional)</span>':''} <span style="font-size:7pt;color:#888;">${sub.code}</span></td>
+            <td>100</td>
+            <td>${absent?'A':(cq||'0')}</td>
+            <td>${absent?'A':(mcq||'0')}</td>
+            <td>${sub.hasPrac?(absent?'A':(prac||'0')):'—'}</td>
+            <td style="font-weight:600;">${absent?'0':tot}</td>
+            <td>—</td>
+            <td>${absent?'0.00':gpa.toFixed(2)}</td>
+            <td style="font-weight:700;${g.l==='F'&&!isOpt?'color:#b91c1c;':''}">${lg}</td>
+            <td></td>
+          </tr>`;
+        });
+      });
+
+      const passed = fail === 0;
+      const avg = clampGPA(cnt > 0 ? tGPA / cnt : 0).toFixed(2);
+      const optionalSubjText = (() => {
+        if (!optionalSelected) return 'N/A';
+        const found = (OPTIONAL_SUBJECTS[stu.group] || []).find(o => o.id === optionalSelected);
+        return found ? found.label : 'N/A';
+      })();
+      const failSubsText = failSubs.length ? failSubs.join(', ') : 'None';
+      const photoBlock = stu.photo ? `<img src="${stu.photo}" class="rc-stu-photo" alt="Photo">` : `<div class="rc-stu-photo-ph">Photo<br>Not<br>Available</div>`;
+      const qrTxt = `MOINUDDIN ADARSHA MOHILA COLLEGE\nName: ${stu.name}\nRoll: ${stu.roll} | Class: ${clsLabel}\nGroup: ${grpLabel} | Exam: ${examType} ${ey}\nGPA: ${avg} | Result: ${passed?'Pass':'Fail'}`;
+      const ord = n => n+(n===1?'st':n===2?'nd':n===3?'rd':'th');
+      const ts = new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+
+      body.innerHTML = `<div class="rc-page" id="rc-printable-modal">
+        <div class="rc-college-hdr">
+          <div class="rc-col-left">${photoBlock}<div class="rc-stu-photo-lbl">Candidate's Photo</div></div>
+          <div class="rc-col-mid">
+            <h1>MOINUDDIN ADARSHA MOHILA COLLEGE</h1>
+            <img src="${getLogoSrc()}" class="rc-college-logo" alt="Logo">
+            <p>Shamimabad, Bagbari, Sylhet.</p>
+            <span class="transcript-lbl">Academic Transcript</span>
+          </div>
+          <div class="rc-col-right">
+            <table><tr><th>Range</th><th>LG</th><th>GPA</th></tr>
+            <tr><td>80-100</td><td>A+</td><td>5.0</td></tr><tr><td>70-79</td><td>A</td><td>4.0</td></tr>
+            <tr><td>60-69</td><td>A-</td><td>3.5</td></tr><tr><td>50-59</td><td>B</td><td>3.0</td></tr>
+            <tr><td>40-49</td><td>C</td><td>2.0</td></tr><tr><td>33-39</td><td>D</td><td>1.0</td></tr>
+            <tr><td>0-32</td><td>F</td><td>0.0</td></tr></table>
+          </div>
+        </div>
+        <div class="rc-stu-block">
+          <div class="rc-stu-row"><div class="rc-stu-lbl">Student Name</div><div>: ${stu.name}</div></div>
+          <div class="rc-stu-row"><div class="rc-stu-lbl">Father's Name</div><div>: ${stu.father||'N/A'}</div></div>
+          <div class="rc-stu-row"><div class="rc-stu-lbl">Mother's Name</div><div>: ${stu.mother||'N/A'}</div></div>
+          <div class="rc-stu-row"><div class="rc-stu-lbl">Class</div><div>: ${clsLabel}</div></div>
+          <div class="rc-stu-row"><div class="rc-stu-lbl">Roll Number</div><div>: ${stu.roll}</div></div>
+          <div class="rc-stu-row"><div class="rc-stu-lbl">Registration</div><div>: ${stu.reg||'N/A'}</div></div>
+          <div class="rc-stu-row"><div class="rc-stu-lbl">Group</div><div>: ${grpLabel}</div></div>
+          <div class="rc-stu-row"><div class="rc-stu-lbl">Examination</div><div>: ${examType} ${ey}</div></div>
+        </div>
+        <div class="rc-exam-hdr">${examType} Examination ${ey}</div>
+        <table class="rc-marks-tbl">
+          <tr><th class="lft">Subject</th><th>Total</th><th>CQ</th><th>MCQ</th><th>Practical</th><th>Total</th><th>Avg.</th><th>GPA</th><th>LG</th><th></th></tr>
+          ${tableRows}
+          <tfoot>
+            <tr><td style="text-align:left;padding-left:6px;"><strong>Total GPA &amp; Result</strong></td><td></td><td></td><td></td><td></td>
+            <td style="font-weight:600;">${tMark}/${mMax}</td><td></td>
+            <td style="font-weight:700;">${avg}</td>
+            <td style="font-weight:700;">${passed?'<span style="color:#dcfce7;">Pass</span>':'<span style="color:#fecaca;">Fail</span>'}</td><td></td></tr>
+          </tfoot>
+        </table>
+        <div class="rc-bottom">
+          <div class="rc-summary-box"><table>
+            <tr><td>Total Marks Obtained</td><td style="font-weight:700;">${tMark}</td></tr>
+            <tr><td>Total Marks</td><td>${mMax}</td></tr>
+            <tr><td>GPA</td><td style="font-weight:700;">${avg}</td></tr>
+            <tr><td>Result</td><td style="font-weight:700;${passed?'color:#166534;':'color:#b91c1c;'}">${passed?'PASS':'FAIL'}</td></tr>
+            <tr><td>Failed Subject(s)</td><td style="font-size:8pt;color:#b91c1c;">${failSubsText}</td></tr>
+            <tr><td>Working Days</td><td>...</td></tr>
+            <tr><td>Total Present</td><td>...</td></tr>
+          </table></div>
+          <div style="margin-top:4px;font-size:8pt;padding:4px 8px;border:1px solid #bbb;min-height:36px;"><strong>Remark:</strong></div>
+        </div>
+        <div class="rc-qr-center"><div id="rc-qr-modal" style="border:1px solid #ccc;"></div><div style="font-size:7pt;color:#666;margin-top:2px;">QR Code</div></div>
+        <div style="margin-top:8px;padding:6px 8px;border:1px solid #e0e0e0;background:#f9f9f9;font-size:9pt;"><strong>Optional Subject:</strong> ${optionalSubjText}</div>
+        <div style="margin-top:5px;padding:6px 10px;border:1px solid #bfdbfe;background:#eff6ff;font-size:9pt;font-weight:600;color:#1e3a8a;">
+          Merit Position: ${ord(meritPos)} / ${meritTotal} &nbsp;—&nbsp; ${stu.cls} · ${stu.group} Group
+        </div>
+        <div class="rc-sign-row">
+          <div class="rc-sign-box"><div class="rc-sign-line"></div><div class="rc-sign-lbl">Class Teacher</div></div>
+          <div class="rc-sign-box"><div class="rc-sign-line"></div><div class="rc-sign-lbl">Guardian</div></div>
+          <div class="rc-sign-box"><div class="rc-sign-line"></div><div class="rc-sign-lbl">Principal</div></div>
+        </div>
+        <div class="rc-gen-note">Generated by Academic Management System — Moinuddin Adarsha Mohila College, Shamimabad, Bagbari, Sylhet.</div>
+        <div style="text-align:center;font-size:7pt;color:#999;margin-top:4px;border-top:1px dashed #ddd;padding-top:4px;">Date &amp; Time of Printing: ${ts}</div>
+      </div>`;
+
+      // QR code
+      try {
+        new QRCode($('rc-qr-modal'), { text: qrTxt, width: 60, height: 60, colorDark: '#0d2b45', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+      } catch (e) {}
+    }
+
+    function printResultModal() {
+      const el = $('rc-printable-modal');
+      if (!el) return;
+      const win = window.open('', '_blank', 'width=900,height=700');
+      if (!win) { alert('Pop-up blocked. Please allow pop-ups.'); return; }
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Result Card</title>
+        <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
+        <style>${document.querySelector('style').textContent}@media print{body{padding:0;}@page{size:A4 portrait;margin:10mm;}}</style>
+        </head><body>${el.outerHTML}</body></html>`);
+      win.document.close();
+      setTimeout(() => win.print(), 500);
+    }
+
+    function downloadResultModalPDF() {
+      const el = $('rc-printable-modal');
+      if (!el) return;
+      const title = $('result-modal-title');
+      html2pdf().set({
+        margin: [0,0,0,0], filename: `Result_${title?.textContent}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2.5, useCORS: true, letterRendering: true, logging: false, windowWidth: 794 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      }).from(el).save();
+    }
+
+    // ── Auth ───────────────────────────────────────────────────────────────
+    async function doLogout() {
+      if (!confirm('Are you sure you want to logout?')) return;
+      try { await fetch('/api/logout', { method: 'POST' }); } catch (_) {}
+      window.location.href = '/login';
+    }
+
+    // ── Init ───────────────────────────────────────────────────────────────
+    (async function () {
+      try {
+        const sess = await fetch('/api/auth-status').then(r => r.json());
+        if (!sess.authenticated) { window.location.href = '/login'; return; }
+        $('nav-avatar').textContent = sess.role === 'admin' ? 'A' : 'T';
+        $('nav-name').textContent = sess.role === 'admin' ? 'Admin' : 'Teacher';
+        $('nav-role').textContent = sess.role === 'admin' ? 'System Admin' : 'Marks Entry';
+        await loadData();
+      } catch (err) {
+        console.error('Init error:', err);
+        alert('Failed to load page: ' + err.message);
+      }
+    })();
+  </script>
+
+</body>
+</html>

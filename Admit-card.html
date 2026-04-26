@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admit Card — Moinuddin Adarsha Mohila College</title>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --navy: #0d2b45; --navy2: #174070; --navy3: #1f5490;
+      --gold: #a97c28; --gold2: #c9973a; --gold3: #e8b84b;
+      --slate: #f1f4f8; --slate2: #e8ecf2; --white: #fff;
+      --txt: #0f172a; --txt2: #334155; --muted: #64748b;
+      --border: #dde3ed; --border2: #c8d2e0;
+      --red: #b91c1c; --green: #166534;
+      --shadow-sm: 0 1px 4px rgba(13,43,69,.08);
+      --shadow-lg: 0 8px 32px rgba(13,43,69,.14);
+      --r: 6px; --r-md: 10px; --r-lg: 14px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Source Sans 3', sans-serif; background: var(--slate); color: var(--txt); display: flex; flex-direction: column; }
+
+    /* ═══ TOP NAV ═══ */
+    .top-nav-bar { position: fixed; top: 0; left: 0; right: 0; height: 70px; z-index: 201; background: linear-gradient(180deg,#0d2b45 0%,#0a2138 100%); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-bottom: 1px solid rgba(255,255,255,.08); box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+    .top-nav-logo { display: flex; align-items: center; gap: 14px; }
+    .top-nav-logo-img { width: 48px; height: 48px; border-radius: 50%; background: #fff; border: 2.5px solid var(--gold2); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .top-nav-logo-img img { width: 100%; height: 100%; object-fit: contain; }
+    .top-nav-logo-text h1 { font-family: 'Merriweather', serif; font-size: .85rem; font-weight: 700; color: #fff; }
+    .top-nav-logo-text p { font-size: .58rem; color: rgba(255,255,255,.5); margin-top: 2px; }
+    .top-nav-admin { display: flex; align-items: center; gap: 16px; }
+    .top-nav-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--gold2); display: flex; align-items: center; justify-content: center; font-size: .95rem; font-weight: 700; color: #fff; }
+    .top-nav-name { font-size: .78rem; font-weight: 700; color: #fff; }
+    .top-nav-role { font-size: .65rem; color: rgba(255,255,255,.7); }
+    .logout-btn { padding: 8px 16px; border-radius: var(--r); border: 1px solid rgba(255,255,255,.3); background: transparent; color: #fff; font-size: .78rem; font-family: inherit; cursor: pointer; font-weight: 600; transition: all .15s; }
+    .logout-btn:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.6); }
+    .hdr-hamburger { display: none; background: none; border: none; color: #fff; font-size: 1.4rem; cursor: pointer; width: 32px; height: 32px; align-items: center; justify-content: center; }
+
+    /* ═══ SIDEBAR ═══ */
+    .site-header { background: linear-gradient(180deg,#0d2b45 0%,#0a2138 100%); position: fixed; left: 0; top: 70px; width: 220px; height: calc(100vh - 70px); z-index: 200; border-right: 1px solid rgba(255,255,255,.06); box-shadow: 4px 0 16px rgba(0,0,0,.3); display: flex; flex-direction: column; overflow-y: auto; }
+    .nav-strip { display: flex; flex-direction: column; padding: 16px 0; background: rgba(0,0,0,.2); flex: 1; }
+    .nt { padding: 12px 16px; cursor: pointer; font-size: .79rem; font-weight: 500; border-left: 3px solid transparent; color: rgba(255,255,255,.55); transition: color .15s, border-color .15s, background .15s; display: flex; align-items: center; text-decoration: none; }
+    .nt:hover { color: rgba(255,255,255,.88); background: rgba(255,255,255,.05); }
+    .nt.active { color: var(--gold3); border-left-color: var(--gold2); background: rgba(255,255,255,.08); }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 190; }
+    .sidebar-overlay.active { display: block; }
+
+    /* ═══ MAIN ═══ */
+    .main { margin-left: 220px; margin-top: 70px; padding: 28px 24px; flex: 1; }
+
+    /* ═══ PAGE HEADER ═══ */
+    .pg-hd { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .pg-hd h2 { font-family: 'Merriweather', serif; font-size: 1.2rem; font-weight: 700; color: var(--navy); }
+    .pg-hd p { font-size: .78rem; color: var(--muted); margin-top: 3px; }
+
+    /* ═══ CARDS ═══ */
+    .card { background: var(--white); border-radius: var(--r-lg); border: 1px solid var(--border); box-shadow: var(--shadow-sm); margin-bottom: 20px; overflow: hidden; }
+    .card-head { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .card-head h3 { font-family: 'Merriweather', serif; font-size: .92rem; font-weight: 700; color: var(--navy); }
+    .card-head .meta { font-size: .72rem; color: var(--muted); }
+    .card-body { padding: 20px; }
+    .card-body.np { padding: 0; }
+
+    /* ═══ FORMS ═══ */
+    .fg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+    .fg { display: flex; flex-direction: column; gap: 5px; }
+    .fg label { font-size: .74rem; font-weight: 600; color: var(--navy); }
+    .fg input, .fg select { padding: 8px 11px; border: 1.5px solid var(--border2); border-radius: var(--r); font-size: .83rem; font-family: inherit; background: #fafcff; color: var(--txt); transition: border .15s; }
+    .fg input:focus, .fg select:focus { outline: none; border-color: var(--navy3); box-shadow: 0 0 0 3px rgba(31,84,144,.1); }
+
+    /* ═══ BUTTONS ═══ */
+    .btn { padding: 8px 18px; border-radius: var(--r); border: none; cursor: pointer; font-family: inherit; font-size: .8rem; font-weight: 600; transition: all .14s; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; }
+    .btn-primary { background: var(--navy); color: #fff; }
+    .btn-primary:hover { background: var(--navy2); }
+    .btn-gold { background: var(--gold); color: #fff; }
+    .btn-gold:hover { background: var(--gold2); }
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-success:hover { background: #15803d; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--navy); color: var(--navy); }
+    .btn-outline:hover { background: var(--navy); color: #fff; }
+    .btn-sm { padding: 5px 12px; font-size: .74rem; }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+
+    /* ═══ TABLE ═══ */
+    .data-tbl { width: 100%; border-collapse: collapse; font-size: .79rem; }
+    .data-tbl thead tr { background: var(--navy); }
+    .data-tbl th { padding: 10px 12px; text-align: left; font-weight: 600; color: #fff; font-size: .73rem; white-space: nowrap; }
+    .data-tbl td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; color: var(--txt2); }
+    .data-tbl tbody tr:last-child td { border-bottom: none; }
+    .data-tbl tbody tr:hover { background: #f8fafc; }
+
+    /* ═══ EMPTY STATE ═══ */
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+    .es-rule { width: 36px; height: 2px; background: var(--border2); margin: 0 auto 12px; }
+    .empty-state p { font-size: .82rem; line-height: 1.6; }
+
+    /* ═══ ADMIT CARD (print layout) ═══ */
+    .ac-page {
+      width: 210mm; background: #fff; margin: 0 auto 20px;
+      box-shadow: var(--shadow-lg); border: 2px solid #ccc;
+      font-family: 'Times New Roman', 'Merriweather', serif; font-size: 10pt;
+      position: relative; overflow: hidden;
+    }
+    .ac-wm { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(-35deg); font-size: 80pt; font-weight: 900; color: rgba(13,43,69,.04); white-space: nowrap; pointer-events: none; z-index: 0; letter-spacing: 5px; }
+    .ac-top-bar { height: 6px; background: linear-gradient(90deg, var(--navy) 0%, var(--gold2) 50%, var(--navy3) 100%); }
+    .ac-hdr { display: grid; grid-template-columns: 60px 1fr 70px; align-items: center; gap: 12px; padding: 12px 20px; border-bottom: 2px solid #000; }
+    .ac-hdr-logo { width: 60px; height: 60px; border: 1px solid #ccc; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f5f5f5; }
+    .ac-hdr-mid { text-align: center; }
+    .ac-hdr-mid h1 { font-size: 1.05rem; font-weight: 700; color: #000; line-height: 1.2; margin-bottom: 2px; }
+    .ac-hdr-mid h2 { font-size: .72rem; font-weight: 600; color: #333; margin-bottom: 2px; }
+    .ac-hdr-mid p { font-size: .65rem; color: #555; }
+    .ac-hdr-qr { text-align: center; }
+    .ac-hdr-qr span { display: block; font-size: .55rem; color: #666; margin-top: 2px; }
+    .ac-admit-title { text-align: center; font-size: 1.1rem; font-weight: 700; letter-spacing: 6px; padding: 7px; background: #000; color: #fff; margin: 0; }
+    .ac-exam-bar { display: flex; flex-wrap: wrap; gap: 10px; padding: 8px 20px; background: #f0f4f8; border-bottom: 1px solid #ccc; }
+    .ac-ei { display: flex; gap: 5px; align-items: center; font-size: .78rem; }
+    .ac-el { font-weight: 700; color: #333; white-space: nowrap; }
+    .ac-ev { color: #000; font-weight: 600; }
+    .ac-body { display: grid; grid-template-columns: 1fr 130px; gap: 16px; padding: 14px 20px; position: relative; z-index: 1; }
+    .ac-det-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin-bottom: 12px; }
+    .ac-di { display: flex; gap: 5px; font-size: .78rem; padding: 2px 0; }
+    .ac-dl { font-weight: 700; min-width: 100px; color: #333; flex-shrink: 0; }
+    .ac-dv { color: #000; }
+    .ac-sub-lbl { font-weight: 700; font-size: .78rem; margin-bottom: 5px; border-bottom: 1px solid #ccc; padding-bottom: 3px; }
+    .ac-sub-tbl { width: 100%; border-collapse: collapse; font-size: .72rem; }
+    .ac-sub-tbl th { background: #333; color: #fff; padding: 3px 6px; text-align: center; border: 1px solid #555; }
+    .ac-sub-tbl td { padding: 2px 6px; border: 1px solid #ccc; text-align: center; }
+    .ac-photo-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .ac-photo { width: 100px; height: 125px; object-fit: cover; border: 2px solid #555; display: block; }
+    .ac-photo-ph { width: 100px; height: 125px; border: 2px dashed #aaa; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: .65rem; color: #888; text-align: center; }
+    .ac-photo-lbl { font-size: .6rem; color: #555; text-align: center; }
+    .ac-notice { font-size: .7rem; color: #222; padding: 7px 20px; background: #fff8e8; border-top: 1px solid #e0c870; border-bottom: 1px solid #e0c870; line-height: 1.7; }
+    .ac-notice-ttl { font-weight: 700; display: block; margin-bottom: 3px; color: #7c5c00; }
+    .ac-signs { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; padding: 10px 20px 14px; border-top: 1px dashed #ccc; margin-top: 10px; }
+    .ac-sign-box { text-align: center; }
+    .ac-sign-line { height: 40px; border-bottom: 1px solid #555; margin-bottom: 4px; }
+    .ac-sign-nm { font-size: .65rem; color: #444; line-height: 1.6; }
+    .ac-foot { text-align: center; font-size: .62rem; color: #666; padding: 5px; border-top: 1px solid #ddd; }
+    .ac-btm-bar { height: 5px; background: linear-gradient(90deg, var(--navy) 0%, var(--gold2) 50%, var(--navy3) 100%); }
+
+    /* ═══ ADMIT MODAL ═══ */
+    #admit-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.6); align-items: center; justify-content: center; padding: 16px; }
+    .admit-modal-card { background: #fff; border-radius: 14px; width: 100%; max-width: 900px; max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+    .admit-modal-hdr { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: linear-gradient(180deg,#f8faff 0%,#fff 100%); border-radius: 14px 14px 0 0; flex-shrink: 0; }
+    .admit-modal-hdr h3 { font-family: Merriweather,serif; font-size: .95rem; font-weight: 700; color: var(--navy); margin: 0; }
+    .admit-modal-hdr button { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--muted); line-height: 1; padding: 2px 6px; border-radius: 4px; }
+    .admit-modal-body { overflow-y: auto; padding: 20px; flex: 1; }
+    .admit-modal-ftr { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; background: var(--slate); border-radius: 0 0 14px 14px; flex-shrink: 0; }
+
+    /* ═══ PRINT ═══ */
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff !important; }
+      .top-nav-bar, .site-header, .ac-sel, .btn-row, .pg-hd { display: none !important; }
+      .main { padding: 0 !important; margin: 0 !important; }
+      .ac-page { box-shadow: none !important; border: none !important; }
+      #admit-modal { display: none !important; }
+    }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 768px) {
+      .hdr-hamburger { display: flex; }
+      .site-header { width: 100%; height: auto; flex-direction: row; padding: 12px 16px; border-right: none; border-bottom: 1px solid rgba(255,255,255,.06); overflow: visible !important; }
+      .nav-strip { position: fixed; left: 0; top: 70px; width: 100%; max-width: 280px; height: calc(100vh - 70px); flex-direction: column; padding: 16px 0; z-index: 250; background: linear-gradient(180deg,#0d2b45 0%,#0a2138 100%); transform: translateX(-100%); transition: transform .3s ease; overflow-y: auto; }
+      .site-header.active .nav-strip { transform: translateX(0); }
+      .main { margin-left: 0; padding: 14px 10px; }
+      .fg-grid { grid-template-columns: 1fr; }
+      .ac-page { width: 100%; }
+      .ac-hdr { grid-template-columns: 48px 1fr 50px; padding: 10px 12px; gap: 8px; }
+      .ac-body { grid-template-columns: 1fr; padding: 10px 12px; gap: 10px; }
+      .ac-photo-col { flex-direction: row; justify-content: center; gap: 12px; }
+      .ac-det-grid { grid-template-columns: 1fr; }
+      .ac-signs { grid-template-columns: 1fr; margin: 0 12px; }
+      .ac-exam-bar { flex-direction: column; gap: 6px; padding: 8px 12px; }
+    }
+    @media (min-width: 1280px) { .main { padding: 32px 40px; } }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP NAV -->
+  <div class="top-nav-bar no-print">
+    <div class="top-nav-logo">
+      <div class="top-nav-logo-img">
+        <img src="https://www.muamc.edu.bd/wp-content/uploads/2025/01/logo-muam-scaled.jpeg" alt="Logo">
+      </div>
+      <div class="top-nav-logo-text">
+        <h1>Moinuddin Adarsha Mohila College</h1>
+        <p>Student Database System</p>
+      </div>
+    </div>
+    <div class="top-nav-admin">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="top-nav-avatar" id="nav-avatar">A</div>
+        <div>
+          <div class="top-nav-name" id="nav-name">Admin</div>
+          <div class="top-nav-role" id="nav-role">System Admin</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+      <button class="hdr-hamburger" id="hdr-hamburger" onclick="toggleSidebar()">☰</button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <header class="site-header no-print" id="site-header">
+    <nav class="nav-strip" id="nav-strip">
+      <a class="nt" href="/">Dashboard</a>
+      <a class="nt" href="/student-list.html">Student Management</a>
+      <a class="nt" href="/marks-entry.html">Mark Entry</a>
+      <a class="nt" href="/Teachers.html">Teachers</a>
+      <a class="nt" href="/Result-card.html">Result Card</a>
+      <a class="nt active" href="/Admit-card.html">Admit Card</a>
+      <a class="nt" href="/analytics.html" style="border-top:1px solid rgba(255,255,255,.08);margin-top:8px;padding-top:16px;">Analytics</a>
+    </nav>
+  </header>
+
+  <div class="sidebar-overlay no-print" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <main class="main">
+    <div class="pg-hd no-print">
+      <h2>Admit Card</h2>
+      <p>Generate and download examination admit cards</p>
+    </div>
+
+    <!-- Configuration card -->
+    <div class="card ac-sel no-print">
+      <div class="card-head"><h3>Admit Card Configuration</h3></div>
+      <div class="card-body">
+        <div class="fg-grid">
+          <div class="fg">
+            <label>Class *</label>
+            <select id="ad-class" onchange="filterAdmitStudents()">
+              <option value="">— Select Class —</option>
+              <option value="Class-XI">Class XI</option>
+              <option value="Class-XII">Class XII</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Group *</label>
+            <select id="ad-group" onchange="filterAdmitStudents()" disabled>
+              <option value="">— Select Group —</option>
+              <option value="Science">Science</option>
+              <option value="Humanities">Humanities</option>
+              <option value="Business">Business Studies</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Examination Name</label>
+            <select id="ad-exam">
+              <option>Half-Yearly Examination</option>
+              <option>Annual Examination</option>
+              <option>Selection Test Examination</option>
+              <option>Test Examination</option>
+              <option>HSC Examination</option>
+            </select>
+          </div>
+          <div class="fg"><label>Session</label><input id="ad-session" value="2024–2025"></div>
+          <div class="fg"><label>Examination Start Date</label><input id="ad-date" type="date"></div>
+          <div class="fg"><label>Examination Centre</label><input id="ad-center" value="Moinuddin Adarsha Mohila College"></div>
+          <div class="fg"><label>Examination Time</label><input id="ad-time" value="10:00 AM"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student list filtered by class+group -->
+    <div id="admit-student-list" class="card no-print" style="display:none;">
+      <div class="card-head">
+        <h3 id="admit-list-hd">Students</h3>
+        <span class="meta" id="admit-list-count"></span>
+      </div>
+      <div class="card-body np" id="admit-list-body"></div>
+    </div>
+
+    <!-- Inline admit output (for print-all) -->
+    <div id="admit-output"></div>
+  </main>
+
+  <!-- Admit Card Modal -->
+  <div id="admit-modal">
+    <div class="admit-modal-card">
+      <div class="admit-modal-hdr">
+        <h3 id="admit-modal-title">Admit Card</h3>
+        <button onclick="closeAdmitModal()">&#x2715;</button>
+      </div>
+      <div class="admit-modal-body" id="admit-modal-body"></div>
+      <div class="admit-modal-ftr no-print">
+        <button class="btn btn-success" onclick="printAdmitModal()">🖨 Print</button>
+        <button class="btn btn-primary" onclick="downloadAdmitModalPDF()">⬇ Download PDF</button>
+        <button class="btn btn-outline" onclick="closeAdmitModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── API wrapper ────────────────────────────────────────────────────────
+    (function () {
+      const base = window.API_BASE !== undefined ? window.API_BASE : 'http://localhost:5000';
+      window.API_BASE = base;
+      const orig = window.fetch;
+      window.fetch = function () {
+        const args = Array.prototype.slice.call(arguments);
+        if (typeof args[0] === 'string' && args[0].startsWith('/api')) args[0] = base + args[0];
+        args[1] = Object.assign({ credentials: 'include' }, args[1] || {});
+        return orig.apply(window, args);
+      };
+    })();
+
+    // ── Sidebar ────────────────────────────────────────────────────────────
+    function toggleSidebar() {
+      document.getElementById('site-header').classList.toggle('active');
+      document.getElementById('sidebar-overlay').classList.toggle('active');
+    }
+    function closeSidebar() {
+      document.getElementById('site-header').classList.remove('active');
+      document.getElementById('sidebar-overlay').classList.remove('active');
+    }
+
+    // ── Utils ──────────────────────────────────────────────────────────────
+    function $(id) { return document.getElementById(id); }
+    function $$(id) { return ($(id) || {}).value || ''; }
+
+    function getLogoSrc() { return 'https://www.muamc.edu.bd/wp-content/uploads/2025/01/logo-muam-scaled.jpeg'; }
+
+    // ── Subject list (for admit card subject table) ────────────────────────
+    const SUBS = {
+      'Science': [
+        { name: 'Bangla 1st Paper', code: '101', hasPrac: false },
+        { name: 'Bangla 2nd Paper', code: '102', hasPrac: false },
+        { name: 'English 1st Paper', code: '107', hasPrac: false },
+        { name: 'English 2nd Paper', code: '108', hasPrac: false },
+        { name: 'ICT', code: '275', hasPrac: false },
+        { name: 'Physics 1st Paper', code: '174', hasPrac: true },
+        { name: 'Physics 2nd Paper', code: '175', hasPrac: true },
+        { name: 'Chemistry 1st Paper', code: '176', hasPrac: true },
+        { name: 'Chemistry 2nd Paper', code: '177', hasPrac: true },
+        { name: 'Biology / Higher Mathematics 1st Paper', code: '178/265', hasPrac: true },
+        { name: 'Biology / Higher Mathematics 2nd Paper', code: '179/266', hasPrac: true }
+      ],
+      'Humanities': [
+        { name: 'Bangla 1st Paper', code: '101', hasPrac: false },
+        { name: 'Bangla 2nd Paper', code: '102', hasPrac: false },
+        { name: 'English 1st Paper', code: '107', hasPrac: false },
+        { name: 'English 2nd Paper', code: '108', hasPrac: false },
+        { name: 'ICT', code: '275', hasPrac: false },
+        { name: 'Civics & Good Governance 1st Paper', code: '269', hasPrac: false },
+        { name: 'Civics & Good Governance 2nd Paper', code: '270', hasPrac: false },
+        { name: 'History of Bangladesh & World Civilization', code: '304', hasPrac: false },
+        { name: 'Sociology', code: '116', hasPrac: false },
+        { name: 'Social Work 1st Paper', code: '271', hasPrac: false },
+        { name: 'Social Work 2nd Paper', code: '272', hasPrac: false },
+        { name: 'Islamic History & Culture', code: '267', hasPrac: false },
+        { name: 'Optional Subject (4th)', code: '111', hasPrac: false }
+      ],
+      'Business': [
+        { name: 'Bangla 1st Paper', code: '101', hasPrac: false },
+        { name: 'Bangla 2nd Paper', code: '102', hasPrac: false },
+        { name: 'English 1st Paper', code: '107', hasPrac: false },
+        { name: 'English 2nd Paper', code: '108', hasPrac: false },
+        { name: 'ICT', code: '275', hasPrac: false },
+        { name: 'Accounting 1st Paper', code: '253', hasPrac: false },
+        { name: 'Accounting 2nd Paper', code: '254', hasPrac: false },
+        { name: 'Business Org. & Mgmt 1st Paper', code: '277', hasPrac: false },
+        { name: 'Business Org. & Mgmt 2nd Paper', code: '278', hasPrac: false },
+        { name: 'Finance, Banking & Insurance / Production Mgmt 1st', code: '292/294', hasPrac: false },
+        { name: 'Finance, Banking & Insurance / Production Mgmt 2nd', code: '293/295', hasPrac: false }
+      ]
+    };
+
+    // ── In-memory data cache ────────────────────────────────────────────────
+    let _students = [];
+
+    async function loadData() {
+      const res = await fetch('/api/students').then(r => r.json());
+      _students = (res.ok && res.data) || [];
+    }
+
+    // ── Filter students by class + group ───────────────────────────────────
+    function filterAdmitStudents() {
+      const cls = $$('ad-class'), grp = $$('ad-group');
+      const grpSel = $('ad-group');
+      grpSel.disabled = !cls;
+      if (!cls) { grpSel.value = ''; }
+
+      const listCard = $('admit-student-list');
+      const listBody = $('admit-list-body');
+      if (!cls || !grp) { listCard.style.display = 'none'; return; }
+
+      const ss = _students.filter(s => s.cls === cls && s.group === grp);
+      $('admit-list-hd').textContent = `${cls} — ${grp} Group`;
+      $('admit-list-count').textContent = `${ss.length} Students`;
+      listCard.style.display = '';
+
+      if (!ss.length) {
+        listBody.innerHTML = '<div class="empty-state" style="padding:20px;"><p>No students found for this class and group.</p></div>';
+        return;
+      }
+
+      listBody.innerHTML = '<table class="data-tbl"><thead><tr><th>#</th><th>Photo</th><th>Name</th><th>Roll No.</th><th>Action</th></tr></thead><tbody>' +
+        ss.map((s, i) => `<tr>
+          <td style="color:var(--muted);">${i + 1}</td>
+          <td>${s.photo ? `<img src="${s.photo}" style="width:32px;height:40px;object-fit:cover;border-radius:3px;border:1px solid var(--border);">` : `<div style="width:32px;height:40px;background:var(--slate2);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.55rem;color:var(--muted);">N/A</div>`}</td>
+          <td><strong>${s.name}</strong></td>
+          <td>${s.roll}</td>
+          <td><button class="btn btn-primary btn-sm" onclick="openAdmitModal('${s.id}')">View Admit Card</button></td>
+        </tr>`).join('') + '</tbody></table>';
+    }
+
+    // ── Build admit card HTML ─────────────────────────────────────────────
+    function buildAdmit(stu, et, ey, sd, ct, tm, qrId) {
+      const subs = SUBS[stu.group] || [];
+      const photoH = stu.photo ? `<img src="${stu.photo}" class="ac-photo" alt="Photo">` : `<div class="ac-photo-ph"><div>Photo<br>Not<br>Attached</div></div>`;
+      const dobF = stu.dob ? new Date(stu.dob).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : (stu.dob || '—');
+      const sdF = sd ? new Date(sd).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '—';
+      const grpLabel = stu.group === 'Business' ? 'Business Studies' : stu.group;
+      const subRows = subs.map((sub,i) => `<tr><td style="text-align:center;">${i+1}</td><td>${sub.name}</td><td style="text-align:center;">${sub.code}</td></tr>`).join('');
+
+      return `<div class="ac-page" id="ac-${stu.id}">
+        <div class="ac-wm">ADMIT CARD</div>
+        <div class="ac-top-bar"></div>
+        <div class="ac-hdr">
+          <div class="ac-hdr-logo"><img src="${getLogoSrc()}" alt="Logo" style="width:100%;height:100%;object-fit:contain;"></div>
+          <div class="ac-hdr-mid">
+            <h1>MOINUDDIN ADARSHA MOHILA COLLEGE</h1>
+            <h2>Shamimabad, Bagbari, Sylhet — Bangladesh</h2>
+            <p>Higher Secondary (HSC) — Government Approved</p>
+          </div>
+          <div class="ac-hdr-qr"><div id="${qrId}"></div><span>Scan QR Code</span></div>
+        </div>
+        <div class="ac-admit-title">A D M I T &nbsp; C A R D</div>
+        <div class="ac-exam-bar">
+          <div class="ac-ei"><span class="ac-el">Examination:</span><span class="ac-ev">${et}</span></div>
+          <div class="ac-ei"><span class="ac-el">Session:</span><span class="ac-ev">${ey}</span></div>
+          <div class="ac-ei"><span class="ac-el">Exam Starts:</span><span class="ac-ev">${sdF}</span></div>
+          <div class="ac-ei"><span class="ac-el">Time:</span><span class="ac-ev">${tm}</span></div>
+          <div class="ac-ei"><span class="ac-el">Centre:</span><span class="ac-ev">${ct}</span></div>
+        </div>
+        <div class="ac-body">
+          <div>
+            <div class="ac-det-grid">
+              <div class="ac-di"><span class="ac-dl">Student Name:</span><span class="ac-dv"><strong>${stu.name}</strong></span></div>
+              <div class="ac-di"><span class="ac-dl">Roll Number:</span><span class="ac-dv"><strong>${stu.roll}</strong></span></div>
+              <div class="ac-di"><span class="ac-dl">Registration:</span><span class="ac-dv">${stu.reg || '—'}</span></div>
+              <div class="ac-di"><span class="ac-dl">Class:</span><span class="ac-dv">${stu.cls}</span></div>
+              <div class="ac-di"><span class="ac-dl">Group:</span><span class="ac-dv">${grpLabel} Group</span></div>
+              <div class="ac-di"><span class="ac-dl">Section:</span><span class="ac-dv">${stu.section || '—'}</span></div>
+              <div class="ac-di"><span class="ac-dl">Father's Name:</span><span class="ac-dv">${stu.father || '—'}</span></div>
+              <div class="ac-di"><span class="ac-dl">Mother's Name:</span><span class="ac-dv">${stu.mother || '—'}</span></div>
+              <div class="ac-di"><span class="ac-dl">Date of Birth:</span><span class="ac-dv">${dobF}</span></div>
+              <div class="ac-di"><span class="ac-dl">Religion:</span><span class="ac-dv">${stu.religion || '—'}</span></div>
+            </div>
+            <div class="ac-sub-lbl">Subject List</div>
+            <table class="ac-sub-tbl">
+              <thead><tr><th>Serial</th><th>Subject Name</th><th>Code</th></tr></thead>
+              <tbody>${subRows}</tbody>
+            </table>
+            <div style="border:1px solid #0d2b45;padding:9px 12px;margin-top:10px;font-size:.7rem;line-height:1.85;color:#0f172a;">
+              <strong style="display:block;margin-bottom:4px;font-size:.72rem;color:#0d2b45;">Examination Instructions:</strong>
+              1. This Admit Card must be presented at the examination hall without fail.<br>
+              2. Candidates must arrive at the centre at least 30 minutes before the scheduled time.<br>
+              3. Mobile phones, calculators, and all electronic devices are strictly prohibited.<br>
+              4. Any form of unfair means will result in immediate expulsion and exam cancellation.<br>
+              5. Candidates must bring their own stationery (pen, pencil, ruler, eraser, etc.).<br>
+              6. This Admit Card must be kept safely until results are officially declared.<br>
+              7. In case of any discrepancy, report immediately to the Examination Controller.
+            </div>
+          </div>
+          <div class="ac-photo-col">
+            ${photoH}
+            <div class="ac-photo-lbl">Candidate's Photo</div>
+          </div>
+        </div>
+        <div class="ac-notice">
+          <span class="ac-notice-ttl">Important Instructions</span>
+          <strong>1.</strong> This admit card must be brought to the examination hall. &nbsp;
+          <strong>2.</strong> Candidates must be present at the centre 30 minutes before the exam. &nbsp;
+          <strong>3.</strong> Mobile phones and electronic devices are strictly prohibited. &nbsp;
+          <strong>4.</strong> Use of unfair means will result in cancellation of the exam and is a punishable offence.
+        </div>
+        <div class="ac-signs">
+          <div class="ac-sign-box"><div class="ac-sign-line"></div><div class="ac-sign-nm">Controller of Examination</div></div>
+          <div class="ac-sign-box"><div class="ac-sign-line"></div><div class="ac-sign-nm">Principal's Signature &amp; Seal</div></div>
+          <div class="ac-sign-box"><div class="ac-sign-line"></div><div class="ac-sign-nm">Candidate's Signature</div></div>
+        </div>
+        <div class="ac-foot">Issue Date: ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>
+        <div class="ac-btm-bar"></div>
+      </div>`;
+    }
+
+    // ── Modal helpers ─────────────────────────────────────────────────────
+    let _currentAdmitId = null;
+
+    function openAdmitModal(id) {
+      const stu = _students.find(s => s.id === id);
+      if (!stu) return;
+      _currentAdmitId = id;
+
+      const et = $$('ad-exam'), ey = $$('ad-session'), sd = $$('ad-date'), ct = $$('ad-center'), tm = $$('ad-time');
+      const qrId = 'ac-qr-modal-' + id;
+      $('admit-modal-body').innerHTML = buildAdmit(stu, et, ey, sd, ct, tm, qrId);
+      $('admit-modal-title').textContent = `${stu.name} (${stu.roll})`;
+      $('admit-modal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+
+      try {
+        new QRCode($(qrId), { text: `ADMIT CARD | ${stu.name} | Roll: ${stu.roll} | ${et} ${ey}`, width: 60, height: 60, colorDark: '#0d2b45', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+      } catch (e) {}
+    }
+
+    function closeAdmitModal() {
+      $('admit-modal').style.display = 'none';
+      document.body.style.overflow = '';
+      _currentAdmitId = null;
+    }
+
+    function printAdmitModal() {
+      const el = $('admit-modal-body');
+      if (!el) return;
+      const win = window.open('', '_blank', 'width=900,height=700,scrollbars=yes');
+      if (!win) { alert('Pop-up blocked. Please allow pop-ups.'); return; }
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Admit Card</title>
+        <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <style>${document.querySelector('style').textContent}@media print{body{padding:0;}@page{size:A4 portrait;margin:10mm;}}</style>
+        </head><body>${el.innerHTML}</body></html>`);
+      win.document.close();
+      setTimeout(() => win.print(), 500);
+    }
+
+    function downloadAdmitModalPDF() {
+      const el = _currentAdmitId ? $('ac-' + _currentAdmitId) : $('admit-modal-body').firstElementChild;
+      if (!el) return;
+      const stu = _currentAdmitId ? _students.find(s => s.id === _currentAdmitId) : null;
+      html2pdf().set({
+        margin: [0,0,0,0],
+        filename: `AdmitCard_${stu ? stu.roll + '_' + stu.name : 'admit'}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2.5, useCORS: true, letterRendering: true, logging: false, windowWidth: 794 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      }).from(el).save();
+    }
+
+    // ── Auth ───────────────────────────────────────────────────────────────
+    async function doLogout() {
+      if (!confirm('Are you sure you want to logout?')) return;
+      try { await fetch('/api/logout', { method: 'POST' }); } catch (_) {}
+      window.location.href = '/login';
+    }
+
+    // ── Init ───────────────────────────────────────────────────────────────
+    (async function () {
+      try {
+        const sess = await fetch('/api/auth-status').then(r => r.json());
+        if (!sess.authenticated) { window.location.href = '/login'; return; }
+        $('nav-avatar').textContent = sess.role === 'admin' ? 'A' : 'T';
+        $('nav-name').textContent = sess.role === 'admin' ? 'Admin' : 'Teacher';
+        $('nav-role').textContent = sess.role === 'admin' ? 'System Admin' : 'Marks Entry';
+
+        // Pre-fill date with today
+        const today = new Date().toISOString().split('T')[0];
+        $('ad-date').value = today;
+
+        await loadData();
+      } catch (err) {
+        console.error('Init error:', err);
+        alert('Failed to load page: ' + err.message);
+      }
+    })();
+
+    // Close modal on backdrop click
+    document.getElementById('admit-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeAdmitModal();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAdmitModal(); });
+  </script>
+
+</body>
+</html>

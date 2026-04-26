@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — Moinuddin Adarsha Mohila College AMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0d2b45; --navy2:#174070; --gold:#c9973a; --slate:#f1f4f8; --border:#dde3ed; --txt:#0f172a; --muted:#64748b; --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:'Source Sans 3',sans-serif;background:linear-gradient(135deg,#0d2b45 0%,#1f5490 100%);color:#111;display:flex;align-items:center;justify-content:center;padding:16px;}
+.login-card{width:100%;max-width:420px;background:#fff;border-radius:22px;box-shadow:0 28px 80px rgba(0,0,0,.28);overflow:hidden;}
+.login-top-bar{height:6px;background:linear-gradient(90deg,var(--navy),var(--gold),var(--navy2));}
+.login-hdr{padding:32px 28px 24px;text-align:center;background:#f8faff;border-bottom:1px solid var(--border);}
+.login-logo-wrap{width:80px;height:80px;border-radius:50%;border:3px solid var(--gold);margin:0 auto 14px;overflow:hidden;background:#fff;display:flex;align-items:center;justify-content:center;}
+.login-logo-wrap img{width:100%;height:100%;object-fit:contain;}
+.login-college{font-family:'Merriweather',serif;font-size:1rem;font-weight:700;color:var(--navy);line-height:1.3;margin-bottom:4px;}
+.login-subtitle{font-size:.76rem;color:var(--muted);letter-spacing:.5px;}
+.login-badge{display:inline-block;margin-top:10px;background:var(--navy);color:#fff;padding:6px 14px;border-radius:999px;font-size:.73rem;font-weight:600;letter-spacing:.3px;}
+.login-body{padding:26px 28px 28px;}
+.login-title{font-family:'Merriweather',serif;font-size:1.05rem;font-weight:700;color:var(--navy);margin-bottom:16px;text-align:center;}
+.lf-group{margin-bottom:16px;}
+.lf-label{display:block;font-size:.78rem;font-weight:600;color:var(--navy);margin-bottom:8px;}
+.lf-input-wrap{position:relative;}
+.lf-inp{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:14px;font-size:.95rem;color:var(--txt);background:#fafcff;transition:border .15s,box-shadow .15s;}
+.lf-inp:focus{outline:none;border-color:var(--navy2);box-shadow:0 0 0 4px rgba(31,84,144,.12);}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:1.05rem;color:var(--muted);cursor:pointer;}
+.login-btn{width:100%;padding:13px 14px;border:none;border-radius:14px;background:var(--navy);color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;transition:background .15s,transform .15s;}
+.login-btn:hover{background:var(--navy2);transform:translateY(-1px);}
+
+#login-err-msg{display:none;margin-bottom:14px;padding:11px 14px;border:1px solid #fecaca;background:#fef2f2;color:#991b1b;border-radius:14px;text-align:center;font-size:.85rem;}
+</style>
+
+</head>
+<body>
+<div class="login-card">
+  <div class="login-top-bar"></div>
+  <div class="login-hdr">
+    <div class="login-logo-wrap">
+      <img src="https://www.muamc.edu.bd/wp-content/uploads/2025/01/logo-muam-scaled.jpeg" alt="College Logo">
+    </div>
+    <div class="login-college">Moinuddin Adarsha Mohila College</div>
+    <div class="login-subtitle">Academic Management System</div>
+    <div class="login-badge">Admin Login</div>
+  </div>
+  <div class="login-body">
+    <div class="login-title">Enter your credentials</div>
+    <div id="login-err-msg">Invalid User ID or Password</div>
+    <form id="login-form">
+      <div class="lf-group">
+        <label class="lf-label" for="l-uid">User ID</label>
+        <div class="lf-input-wrap">
+          <input id="l-uid" class="lf-inp" type="text" placeholder="Enter your User ID" autocomplete="username" required>
+        </div>
+      </div>
+      <div class="lf-group">
+        <label class="lf-label" for="l-pw">Password</label>
+        <div class="lf-input-wrap">
+          <input id="l-pw" class="lf-inp" type="password" placeholder="Enter your Password" autocomplete="current-password" required>
+          <button class="pw-toggle" type="button" id="pw-eye" onclick="togglePw()" title="Show Password">&#128065;</button>
+        </div>
+      </div>
+      <button class="login-btn" type="submit" id="login-submit-btn">Login →</button>
+    </form>
+  </div>
+</div>
+<script>
+
+// --- API CONFIGURATION FOR STATIC SERVERS ---
+(function() {
+  const defaultBase = 'http://localhost:5000';
+  window.API_BASE = window.API_BASE !== undefined ? window.API_BASE : defaultBase;
+  const _origFetch = window.fetch;
+  window.fetch = function() {
+    let args = Array.prototype.slice.call(arguments);
+    let resource = args[0];
+    let config = args[1];
+    if (typeof resource === 'string' && resource.startsWith('/api')) {
+      resource = window.API_BASE + resource;
+    }
+    config = config || {};
+    config.credentials = 'include';
+    args[0] = resource;
+    args[1] = config;
+    return _origFetch.apply(window, args);
+  };
+})();
+// --------------------------------------------
+
+const AUTH = { key:'muamc_auth' };
+const form = document.getElementById('login-form');
+const errEl = document.getElementById('login-err-msg');
+const uidEl = document.getElementById('l-uid');
+const pwEl = document.getElementById('l-pw');
+const btn = document.getElementById('login-submit-btn');
+form.addEventListener('submit', async function(event){
+  event.preventDefault();
+  await doLogin();
+});
+window.addEventListener('load', async function(){
+  try {
+    const response = await fetch('/api/auth-status');
+    const result = await response.json();
+    if(result.authenticated){
+      window.location.href = result.role === 'admin' ? 'index.html' : 'dashboard.html';
+      return;
+    }
+  } catch (error) {
+    // Ignore error, proceed to login
+  }
+  uidEl.focus();
+});
+async function doLogin(){
+  const uid = uidEl.value.trim();
+  const pw = pwEl.value;
+  uidEl.classList.remove('err');
+  pwEl.classList.remove('err');
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Logging in...';
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({uid, pw})
+    });
+    const result = await response.json();
+    if(result.ok){
+      window.location.href = result.role === 'admin' ? 'index.html' : 'dashboard.html';
+      return;
+    }
+    showError(result.message || 'Invalid User ID or Password');
+  } catch (error) {
+    showError('Cannot reach server. Is Flask running?');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Login →';
+  }
+}
+function showError(message){
+  errEl.textContent = message;
+  errEl.style.display = 'block';
+  uidEl.classList.add('err');
+  pwEl.classList.add('err');
+  pwEl.value = '';
+}
+function togglePw(){
+  if(pwEl.type === 'password'){
+    pwEl.type = 'text';
+    document.getElementById('pw-eye').innerHTML = '&#128683;';
+  } else {
+    pwEl.type = 'password';
+    document.getElementById('pw-eye').innerHTML = '&#128065;';
+  }
+}
+</script>
+</body>
+</html>
