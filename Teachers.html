@@ -362,7 +362,7 @@
   <script>
     // ── API fetch wrapper ──────────────────────────────────────────────────
     (function () {
-      const defaultBase = 'http://localhost:5000';
+      const defaultBase = window.location.origin;
       window.API_BASE = window.API_BASE !== undefined ? window.API_BASE : defaultBase;
       const _origFetch = window.fetch;
       window.fetch = function () {
