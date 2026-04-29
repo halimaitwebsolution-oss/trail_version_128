@@ -43,9 +43,12 @@ app = Flask(__name__, static_folder='static')
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Database Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-    'DATABASE_URL'
-) or f"sqlite:///{os.path.join(BASE_DIR, 'hsc_academy.db')}"
+# Render provides DATABASE_URL starting with 'postgres://' which SQLAlchemy 1.4+ rejects.
+# We normalise it to 'postgresql://' here.
+_db_url = os.environ.get('DATABASE_URL') or f"sqlite:///{os.path.join(BASE_DIR, 'hsc_academy.db')}"
+if _db_url.startswith('postgres://'):
+    _db_url = _db_url.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = _db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     'pool_size': 10,
@@ -60,6 +63,17 @@ CORS(app, supports_credentials=True)
 
 # Initialize database
 db.init_app(app)
+
+# ─────────────────────────────────────────────
+# Auto-create tables at startup (works for both Gunicorn and python app.py)
+# This is safe to run every time — create_all() is idempotent.
+# ─────────────────────────────────────────────
+with app.app_context():
+    try:
+        db.create_all()
+        print("[DB] Tables verified/created successfully.")
+    except Exception as _e:
+        print(f"[DB] WARNING: Could not create tables: {_e}")
 
 # ─────────────────────────────────────────────
 # Credentials — read from .env; never hard-coded
