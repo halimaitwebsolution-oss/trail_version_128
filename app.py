@@ -43,19 +43,24 @@ app = Flask(__name__, static_folder='static')
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Database Configuration
+# Priority: DATABASE_URL env var → hardcoded Render PostgreSQL → local SQLite
 # Render provides DATABASE_URL starting with 'postgres://' which SQLAlchemy 1.4+ rejects.
 # We normalise it to 'postgresql://' here.
-_db_url = os.environ.get('DATABASE_URL') or f"sqlite:///{os.path.join(BASE_DIR, 'hsc_academy.db')}"
+_RENDER_DB = 'postgresql://admin1234:7ayjqjRTsn9tE9JcQG5F8pCS2YR6C9nc@dpg-d7mtruvavr4c73f9l2i0-a/hsc_academy_db'
+_db_url = os.environ.get('DATABASE_URL') or _RENDER_DB
 if _db_url.startswith('postgres://'):
     _db_url = _db_url.replace('postgres://', 'postgresql://', 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = _db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_size': 10,
-    'max_overflow': 20,
-    'pool_recycle': 3600,
-    'pool_pre_ping': True,
-}
+
+# pool_size / max_overflow are not supported by SQLite — only set for PostgreSQL
+if _db_url.startswith('postgresql'):
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_size': 10,
+        'max_overflow': 20,
+        'pool_recycle': 3600,
+        'pool_pre_ping': True,
+    }
 
 # Secret key for server-side session (session cookie auth)
 app.secret_key = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
@@ -72,6 +77,7 @@ with app.app_context():
     try:
         db.create_all()
         print("[DB] Tables verified/created successfully.")
+        print(f"[DB] Connected to: ...@{_db_url.split('@')[-1] if '@' in _db_url else _db_url}")
     except Exception as _e:
         print(f"[DB] WARNING: Could not create tables: {_e}")
 
@@ -256,6 +262,38 @@ def html_pages(page):
         return redirect('/login')
     # Use _serve_html to ensure the global font and API scripts are correctly injected
     return _serve_html(page, inject_api=(page != 'login.html'))
+
+
+# ─────────────────────────────────────────────
+# HEALTH CHECK  (no auth — for deployment diagnosis)
+# ─────────────────────────────────────────────
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    db_ok = False
+    db_info = {}
+    try:
+        from sqlalchemy import text
+        with db.engine.connect() as conn:
+            conn.execute(text('SELECT 1'))
+        student_count = Student.query.count()
+        teacher_count = Teacher.query.count()
+        db_ok = True
+        safe_url = _db_url.split('@')[-1] if '@' in _db_url else _db_url
+        db_info = {
+            'connected': True,
+            'host': safe_url,
+            'students': student_count,
+            'teachers': teacher_count,
+        }
+    except Exception as e:
+        db_info = {'connected': False, 'error': str(e)}
+
+    return jsonify({
+        'ok': db_ok,
+        'status': 'healthy' if db_ok else 'unhealthy',
+        'database': db_info,
+        'version': '1.0.0',
+    }), 200 if db_ok else 503
 
 
 # ─────────────────────────────────────────────
