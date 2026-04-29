@@ -46,7 +46,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Priority: DATABASE_URL env var → hardcoded Render PostgreSQL → local SQLite
 # Render provides DATABASE_URL starting with 'postgres://' which SQLAlchemy 1.4+ rejects.
 # We normalise it to 'postgresql://' here.
-_RENDER_DB = 'postgresql://admin1234:7ayjqjRTsn9tE9JcQG5F8pCS2YR6C9nc@dpg-d7mtruvavr4c73f9l2i0-a/hsc_academy_db'
+_RENDER_DB = 'postgresql://admin1234:7ayjqjRTsn9tE9JcQG5F8pCS2YR6C9nc@dpg-d7mtruvavr4c73f9l2i0-a:5432/hsc_academy_db'
 _db_url = os.environ.get('DATABASE_URL') or _RENDER_DB
 if _db_url.startswith('postgres://'):
     _db_url = _db_url.replace('postgres://', 'postgresql://', 1)
@@ -364,8 +364,13 @@ def get_students():
             (Student.roll.ilike(f'%{q}%'))
         )
 
-    students = [s.to_dict() for s in query.all()]
-    return jsonify({'ok': True, 'data': students})
+    try:
+        students = [s.to_dict() for s in query.all()]
+        return jsonify({'ok': True, 'data': students})
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'ok': False, 'message': f'Database error: {str(e)}'}), 500
 
 
 @app.route('/api/students', methods=['POST'])
@@ -1640,7 +1645,11 @@ def method_not_allowed(e):
 
 @app.errorhandler(500)
 def server_error(e):
-    return jsonify({'ok': False, 'message': 'Internal server error'}), 500
+    # Include real error detail so we can diagnose deployment issues.
+    # IMPORTANT: Remove the str(e) in production once the bug is confirmed fixed.
+    import traceback
+    detail = str(e) if str(e) else repr(e)
+    return jsonify({'ok': False, 'message': f'Internal server error: {detail}'}), 500
 
 
 # ─────────────────────────────────────────────
