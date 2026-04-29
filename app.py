@@ -70,16 +70,55 @@ CORS(app, supports_credentials=True)
 db.init_app(app)
 
 # ─────────────────────────────────────────────
-# Auto-create tables at startup (works for both Gunicorn and python app.py)
-# This is safe to run every time — create_all() is idempotent.
+# Auto-create tables + run safe column migrations at startup.
+# db.create_all() only creates MISSING tables — it never alters existing ones.
+# We run ALTER TABLE ... ADD COLUMN IF NOT EXISTS for columns added after the
+# initial deployment. IF NOT EXISTS makes every statement safe to re-run.
 # ─────────────────────────────────────────────
+_COLUMN_MIGRATIONS = [
+    # (table, column, column_definition)
+    ("students", "optional_subjects", "VARCHAR(50) DEFAULT ''"),
+    ("students", "session",           "VARCHAR(50) DEFAULT ''"),
+    ("students", "year",              "VARCHAR(10) DEFAULT ''"),
+    ("students", "photo",             "VARCHAR(500) DEFAULT ''"),
+    ("students", "section",           "VARCHAR(50) DEFAULT ''"),
+    ("students", "father",            "VARCHAR(255) DEFAULT ''"),
+    ("students", "mother",            "VARCHAR(255) DEFAULT ''"),
+    ("students", "dob",               "VARCHAR(50) DEFAULT ''"),
+    ("students", "phone",             "VARCHAR(20) DEFAULT ''"),
+    ("students", "religion",          "VARCHAR(50) DEFAULT ''"),
+    ("students", "reg",               "VARCHAR(50) DEFAULT ''"),
+    ("teachers", "empid",             "VARCHAR(50) DEFAULT ''"),
+    ("teachers", "joining",           "VARCHAR(50) DEFAULT ''"),
+    ("teachers", "address",           "TEXT DEFAULT ''"),
+    ("marks",    "selected_optional", "VARCHAR(50) DEFAULT ''"),
+]
+
 with app.app_context():
+    from sqlalchemy import text as _text
     try:
         db.create_all()
         print("[DB] Tables verified/created successfully.")
         print(f"[DB] Connected to: ...@{_db_url.split('@')[-1] if '@' in _db_url else _db_url}")
     except Exception as _e:
         print(f"[DB] WARNING: Could not create tables: {_e}")
+
+    # Run safe column migrations
+    if _db_url.startswith('postgresql'):
+        with db.engine.connect() as _conn:
+            for _tbl, _col, _col_def in _COLUMN_MIGRATIONS:
+                try:
+                    _conn.execute(_text(
+                        f"ALTER TABLE {_tbl} ADD COLUMN IF NOT EXISTS {_col} {_col_def};"
+                    ))
+                    _conn.commit()
+                    print(f"[DB] Column migration OK: {_tbl}.{_col}")
+                except Exception as _me:
+                    print(f"[DB] Column migration skipped ({_tbl}.{_col}): {_me}")
+                    try:
+                        _conn.rollback()
+                    except Exception:
+                        pass
 
 # ─────────────────────────────────────────────
 # Credentials — read from .env; never hard-coded
