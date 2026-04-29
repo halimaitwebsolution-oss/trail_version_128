@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Registration - MAMC Academic Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --navy:#0d2b45; --navy2:#174070; --navy3:#1f5490;
+  --gold:#a97c28; --gold2:#c9973a; --gold3:#e8b84b;
+  --slate:#f1f4f8; --slate2:#e8ecf2; --white:#fff;
+  --txt:#0f172a; --txt2:#334155; --muted:#64748b;
+  --border:#dde3ed; --border2:#c8d2e0;
+  --red:#b91c1c; --green:#166534;
+  --r:6px; --r-md:10px; --r-lg:14px;
+  --shadow-sm:0 1px 4px rgba(13,43,69,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--slate);color:var(--txt);padding-top:90px;}
+
+/* NAVBAR */
+.top-nav-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 70px; z-index: 201;
+  background: linear-gradient(180deg, #0d2b45 0%, #0a2138 100%);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, .08); box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+}
+.top-nav-logo { display: flex; align-items: center; gap: 14px; }
+.top-nav-logo-img { width: 48px; height: 48px; border-radius: 50%; background: #fff; border: 2.5px solid var(--gold2); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.top-nav-logo-img img { width: 100%; height: 100%; object-fit: contain; }
+.top-nav-logo-text h1 { font-family: 'Merriweather', serif; font-size: .85rem; font-weight: 700; color: #fff; line-height: 1.2; }
+.top-nav-logo-text p { font-size: .58rem; color: rgba(255, 255, 255, .5); }
+.top-nav-admin { display: flex; align-items: center; gap: 16px; }
+.top-nav-admin-info { display: flex; align-items: center; gap: 10px; }
+.top-nav-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--gold2); display: flex; align-items: center; justify-content: center; font-size: .95rem; font-weight: 700; color: #fff; }
+.top-nav-name { font-size: .78rem; font-weight: 700; color: #fff; }
+.top-nav-role { font-size: .65rem; color: rgba(255, 255, 255, .7); }
+.logout-btn { padding: 8px 16px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, .3); background: transparent; color: #fff; font-size: .78rem; cursor: pointer; font-weight: 600; }
+.logout-btn:hover { background: rgba(255, 255, 255, .1); }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.pg-hd { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.pg-hd h2 { font-family: 'Merriweather', serif; font-size: 1.6rem; color: var(--navy); }
+.pg-hd p { font-size: .9rem; color: var(--muted); margin-top: 4px; }
+
+.card { background: #fff; border-radius: var(--r-lg); border: 1px solid var(--border); box-shadow: var(--shadow-sm); margin-bottom: 24px; overflow: hidden; }
+.card-head { padding: 16px 24px; border-bottom: 1px solid var(--border); background: #fcfdfe; }
+.card-head h3 { font-family: 'Merriweather', serif; font-size: 1rem; color: var(--navy); }
+.card-body { padding: 24px; }
+
+.fg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.fg { display: flex; flex-direction: column; gap: 6px; }
+.fg label { font-size: .8rem; font-weight: 600; color: var(--navy); }
+.fg input, .fg select { padding: 10px 12px; border: 1.5px solid var(--border2); border-radius: var(--r); font-family: inherit; font-size: .85rem; }
+.fg input:focus, .fg select:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(13,43,69,.1); }
+
+.btn { padding: 10px 20px; border-radius: var(--r); border: none; font-family: inherit; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; transition: all .2s; text-decoration: none; }
+.btn-primary { background: var(--navy); color: #fff; }
+.btn-primary:hover { background: var(--navy2); }
+.btn-outline { background: transparent; border: 1.5px solid var(--navy); color: var(--navy); }
+.btn-outline:hover { background: var(--navy); color: #fff; }
+.btn-success { background: var(--green); color: #fff; }
+.btn-sm { padding: 6px 14px; font-size: .75rem; }
+
+.photo-upload { display: flex; gap: 16px; align-items: flex-start; }
+.photo-well { width: 120px; height: 150px; border: 2px dashed var(--border2); border-radius: var(--r); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; background: #fafcff; }
+.photo-well img { width: 100%; height: 100%; object-fit: cover; }
+.photo-well:hover { border-color: var(--navy); }
+.photo-hint { font-size: .7rem; color: var(--muted); text-align: center; padding: 10px; }
+
+.alert { padding: 12px 16px; border-radius: var(--r); font-size: .85rem; margin-bottom: 20px; display: none; }
+.alert-ok { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+.alert-err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+  .back-link { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 999px; background: rgba(13, 43, 69, .08); color: var(--navy); text-decoration: none; font-size: .9rem; font-weight: 700; margin-bottom: 16px; border: 1px solid transparent; transition: all .2s ease; box-shadow: 0 10px 24px rgba(13, 43, 69, .08); }
+  .back-link:hover { background: var(--navy); color: #fff; border-color: var(--navy); transform: translateY(-1px); }
+
+/* Import Status */
+.import-status { margin-top: 16px; display: none; }
+.progress-track { height: 12px; background: var(--slate2); border-radius: 999px; overflow: hidden; margin: 10px 0; }
+.progress-bar { height: 100%; background: linear-gradient(90deg, var(--navy), var(--gold)); width: 0%; transition: width .3s; }
+
+@media(max-width:768px){
+  .fg-grid { grid-template-columns: 1fr; }
+  .photo-upload { flex-direction: column; }
+}
+</style>
+
+<style>
+*,:before,:after{border-radius:0 !important;}
+</style>
+
+  <!-- PAGE TRANSITION LOADER -->
+  <style>
+    .page-loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.72);backdrop-filter:blur(2px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .24s ease,visibility .24s ease;z-index:9999;}
+    .page-loader.visible{opacity:1;visibility:visible;pointer-events:auto;}
+    .page-loader-inner{display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px 20px;background:rgba(255,255,255,.92);border:1px solid rgba(15,23,42,.1); box-shadow:0 12px 32px rgba(15,23,42,.12);}
+    .page-loader-dots{display:flex;gap:8px;}
+    .page-loader-dot{width:12px;height:12px;background:var(--navy);animation:page-loader-pulse 1s ease-in-out infinite both;}
+    .page-loader-dot:nth-child(2){animation-delay:.16s;}
+    .page-loader-dot:nth-child(3){animation-delay:.32s;}
+    @keyframes page-loader-pulse{0%,100%{transform:scale(1);opacity:.4;}50%{transform:scale(1.45);opacity:1;}}
+    .page-loader-text{font-size:.92rem;color:var(--navy);font-weight:700;letter-spacing:.02em;}
+  </style>
+</head>
+<body>
+  <div id="page-loader" class="page-loader" aria-hidden="true">
+    <div class="page-loader-inner">
+      <div class="page-loader-dots">
+        <span class="page-loader-dot"></span>
+        <span class="page-loader-dot"></span>
+        <span class="page-loader-dot"></span>
+      </div>
+      <div class="page-loader-text">Loading…</div>
+    </div>
+  </div>
+
+
+<div class="top-nav-bar">
+  <div class="top-nav-logo">
+    <div class="top-nav-logo-img"><img src="https://www.muamc.edu.bd/wp-content/uploads/2025/01/logo-muam-scaled.jpeg" alt="Logo"></div>
+    <div class="top-nav-logo-text">
+      <h1>Moinuddin Adarsha Mohila College</h1>
+      <p>Student Database System</p>
+    </div>
+  </div>
+  <div class="top-nav-admin">
+    <div class="top-nav-admin-info">
+      <div class="top-nav-avatar" id="user-avatar">T</div>
+      <div>
+        <div class="top-nav-name" id="user-name">Teacher</div>
+        <div class="top-nav-role" id="user-role">Marks Entry</div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+  <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+  
+  <div class="pg-hd">
+    <h2>Student Registration</h2>
+    <p>Add students individually or import them in bulk from an Excel file.</p>
+  </div>
+
+  <!-- INDIVIDUAL REGISTRATION -->
+  <div class="card">
+    <div class="card-head"><h3>Individual Registration</h3></div>
+    <div class="card-body">
+      <div id="add-alert" class="alert"></div>
+      <div class="photo-upload" style="margin-bottom:24px;">
+        <div class="photo-well" onclick="document.getElementById('s-photo').click()">
+          <img id="photo-preview" src="" style="display:none;">
+          <div id="photo-placeholder" class="photo-hint"><strong>Click to Upload</strong><br>3x4 Photo preferred (Max 2MB)</div>
+          <input type="file" id="s-photo" accept="image/*" style="display:none;" onchange="handlePhoto(this)">
+        </div>
+        <div style="flex:1;">
+          <div class="fg-grid">
+            <div class="fg"><label>Full Name *</label><input id="s-name" placeholder="Enter student's full name"></div>
+            <div class="fg"><label>Roll Number *</label><input id="s-roll" placeholder="Ex: 1001"></div>
+            <div class="fg"><label>Registration No.</label><input id="s-reg" placeholder="Optional"></div>
+            <div class="fg"><label>Class *</label>
+              <select id="s-class">
+                <option value="">— Select —</option>
+                <option value="Class-XI">Class XI</option>
+                <option value="Class-XII">Class XII</option>
+              </select>
+            </div>
+            <div class="fg"><label>Group *</label>
+              <select id="s-group">
+                <option value="">— Select —</option>
+                <option value="Science">Science</option>
+                <option value="Humanities">Humanities</option>
+                <option value="Business">Business Studies</option>
+              </select>
+            </div>
+            <div class="fg"><label>Section</label><input id="s-section" placeholder="Ex: A"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fg-grid" style="margin-top:16px;">
+        <div class="fg"><label>Father's Name</label><input id="s-father"></div>
+        <div class="fg"><label>Mother's Name</label><input id="s-mother"></div>
+        <div class="fg"><label>Date of Birth</label><input id="s-dob" type="date"></div>
+        <div class="fg"><label>Phone Number</label><input id="s-phone"></div>
+        <div class="fg"><label>Religion</label><input id="s-religion"></div>
+        <div class="fg"><label>Session *</label>
+          <select id="s-session">
+            <option value="2023–2024">2023–2024</option>
+            <option value="2024–2025" selected>2024–2025</option>
+            <option value="2025–2026">2025–2026</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:24px; display:flex; gap:12px;">
+        <button class="btn btn-primary" onclick="saveStudent()">Register Student</button>
+        <button class="btn btn-outline" onclick="resetForm()">Clear Form</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BULK IMPORT -->
+  <div class="card">
+    <div class="card-head"><h3>Bulk Import from Excel</h3></div>
+    <div class="card-body">
+      <div id="bulk-alert" class="alert"></div>
+      <p style="font-size:.85rem; color:var(--muted); margin-bottom:20px;">
+        Upload an Excel file with columns: <strong>Name, Roll, Registration, Class, Group, Section, Father, Mother, DOB, Phone, Religion, Session</strong>.
+      </p>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <label class="btn btn-primary">
+          ⬆ Choose Excel File
+          <input type="file" id="bulk-file" accept=".xlsx, .xls" style="display:none;" onchange="handleBulkImport(this)">
+        </label>
+        <button class="btn btn-outline" onclick="downloadTemplate()">Download Template</button>
+      </div>
+
+      <div id="bulk-status" class="import-status">
+        <p id="bulk-label" style="font-size:.85rem; font-weight:600;">Processing file...</p>
+        <div class="progress-track"><div id="bulk-progress" class="progress-bar"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let studentPhoto = "";
+
+async function doLogout() {
+  if (!confirm('Are you sure you want to logout?')) return;
+  await fetch('/api/logout', { method: 'POST' });
+  window.location.href = 'login.html';
+}
+
+function handlePhoto(inp) {
+  const f = inp.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    studentPhoto = e.target.result;
+    document.getElementById('photo-preview').src = studentPhoto;
+    document.getElementById('photo-preview').style.display = 'block';
+    document.getElementById('photo-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(f);
+}
+
+function resetForm() {
+  ['s-name','s-roll','s-reg','s-section','s-father','s-mother','s-dob','s-phone','s-religion'].forEach(id => document.getElementById(id).value = "");
+  document.getElementById('s-class').value = "";
+  document.getElementById('s-group').value = "";
+  studentPhoto = "";
+  document.getElementById('photo-preview').style.display = 'none';
+  document.getElementById('photo-placeholder').style.display = 'block';
+}
+
+function setMsg(id, type, msg) {
+  const el = document.getElementById(id);
+  el.className = 'alert alert-' + type;
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 5000);
+}
+
+async function saveStudent() {
+  const name = document.getElementById('s-name').value.trim();
+  const roll = document.getElementById('s-roll').value.trim();
+  const cls = document.getElementById('s-class').value;
+  const grp = document.getElementById('s-group').value;
+  const session = document.getElementById('s-session').value;
+
+  if(!name || !roll || !cls || !grp || !session) {
+    setMsg('add-alert', 'err', 'Please fill all required fields (*)');
+    return;
+  }
+
+  const student = {
+    id: "ST-" + Date.now(),
+    name, roll, reg: document.getElementById('s-reg').value,
+    cls, group: grp, section: document.getElementById('s-section').value,
+    father: document.getElementById('s-father').value,
+    mother: document.getElementById('s-mother').value,
+    dob: document.getElementById('s-dob').value,
+    phone: document.getElementById('s-phone').value,
+    religion: document.getElementById('s-religion').value,
+    session, photo: studentPhoto
+  };
+
+  try {
+    const res = await fetch('/api/students', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(student)
+    });
+    const data = await res.json();
+    if(data.ok) {
+      setMsg('add-alert', 'ok', 'Student registered successfully!');
+      resetForm();
+    } else {
+      setMsg('add-alert', 'err', data.message || 'Error occurred.');
+    }
+  } catch(e) { setMsg('add-alert', 'err', 'Server error.'); }
+}
+
+function handleBulkImport(inp) {
+  const f = inp.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const data = new Uint8Array(e.target.result);
+    const wb = XLSX.read(data, {type: 'array'});
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet);
+    
+    if(!rows.length) { alert('File is empty.'); return; }
+    
+    document.getElementById('bulk-status').style.display = 'block';
+    
+    // Map Excel columns to API structure
+    const payload = rows.map(r => ({
+      id: "ST-" + Math.random().toString(36).substr(2, 9),
+      name: r.Name || r.name,
+      roll: String(r.Roll || r.roll || ""),
+      reg: String(r.Registration || r.reg || ""),
+      cls: r.Class || r.class,
+      group: r.Group || r.group,
+      section: r.Section || r.section || "",
+      father: r.Father || r.father || "",
+      mother: r.Mother || r.mother || "",
+      dob: r.DOB || r.dob || "",
+      phone: r.Phone || r.phone || "",
+      religion: r.Religion || r.religion || "",
+      session: r.Session || r.session || "2024–2025"
+    }));
+
+    try {
+      const res = await fetch('/api/students/bulk-import', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ students: payload })
+      });
+      const resData = await res.json();
+      if(resData.ok) {
+        document.getElementById('bulk-progress').style.width = '100%';
+        setMsg('bulk-alert', 'ok', `Successfully imported ${resData.count} students!`);
+      } else {
+        setMsg('bulk-alert', 'err', resData.message || 'Import failed.');
+      }
+    } catch(err) { setMsg('bulk-alert', 'err', 'Network error.'); }
+  };
+  reader.readAsArrayBuffer(f);
+}
+
+function downloadTemplate() {
+  const headers = ['Name', 'Roll', 'Registration', 'Class', 'Group', 'Section', 'Father', 'Mother', 'DOB', 'Phone', 'Religion', 'Session'];
+  const data = [headers, ['Sample Name', '1001', '123456', 'Class-XI', 'Science', 'A', 'Father Name', 'Mother Name', '2005-01-01', '01700000000', 'Islam', '2024–2025']];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Template");
+  XLSX.writeFile(wb, "Student_Import_Template.xlsx");
+}
+
+(async function init(){
+  const res = await fetch('/api/auth-status');
+  const auth = await res.json();
+  if(!auth.authenticated) window.location.href = 'login.html';
+  const isAdmin = auth.role === 'admin';
+  document.getElementById('user-name').textContent = isAdmin ? 'Admin' : 'Teacher';
+  document.getElementById('user-role').textContent = isAdmin ? 'System Admin' : 'Marks Entry';
+  document.getElementById('user-avatar').textContent = isAdmin ? 'A' : 'T';
+})();
+</script>
+
+  <script>
+    (function(){
+      const loader = document.getElementById('page-loader');
+      if(!loader) return;
+      const show = () => loader.classList.add('visible');
+      const hide = () => loader.classList.remove('visible');
+      document.addEventListener('click', function(event){
+        const anchor = event.target.closest('a');
+        if(!anchor || !anchor.href) return;
+        const target = anchor.getAttribute('target');
+        const href = anchor.getAttribute('href');
+        if(target === '_blank' || target === '_top' || target === '_parent' || target === '_self' && anchor.hasAttribute('download')) return;
+        if(!href || href.trim().startsWith('javascript:') || href.trim().startsWith('#')) return;
+        const url = new URL(anchor.href, location.href);
+        if(url.origin !== location.origin) return;
+        if(url.pathname === location.pathname && url.search === location.search) return;
+        event.preventDefault();
+        show();
+        setTimeout(()=> { window.location.href = url.href; }, 180);
+      }, true);
+      window.addEventListener('beforeunload', show);
+      window.addEventListener('pageshow', hide);
+    })();
+  </script>
+</body>
+</html>

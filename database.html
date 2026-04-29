@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Database - MAMC Academic Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0d2b45; --navy2:#174070; --navy3:#1f5490;
+  --gold:#a97c28; --gold2:#c9973a; --gold3:#e8b84b;
+  --slate:#f1f4f8; --slate2:#e8ecf2; --white:#fff;
+  --txt:#0f172a; --txt2:#334155; --muted:#64748b;
+  --border:#dde3ed; --border2:#c8d2e0;
+  --r:6px; --r-md:10px; --r-lg:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--slate);color:var(--txt);padding-top:90px;}
+
+.top-nav-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 70px; z-index: 201;
+  background: linear-gradient(180deg, #0d2b45 0%, #0a2138 100%);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, .08); box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+}
+.top-nav-logo { display: flex; align-items: center; gap: 14px; }
+.top-nav-logo-img { width: 48px; height: 48px; border-radius: 50%; background: #fff; border: 2.5px solid var(--gold2); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.top-nav-logo-img img { width: 100%; height: 100%; object-fit: contain; }
+.top-nav-logo-text h1 { font-family: 'Merriweather', serif; font-size: .85rem; font-weight: 700; color: #fff; line-height: 1.2; }
+.top-nav-logo-text p { font-size: .58rem; color: rgba(255, 255, 255, .5); }
+.top-nav-admin { display: flex; align-items: center; gap: 16px; }
+.top-nav-admin-info { display: flex; align-items: center; gap: 10px; }
+.top-nav-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--gold2); display: flex; align-items: center; justify-content: center; font-size: .95rem; font-weight: 700; color: #fff; }
+.top-nav-name { font-size: .78rem; font-weight: 700; color: #fff; }
+.top-nav-role { font-size: .65rem; color: rgba(255, 255, 255, .7); }
+.logout-btn { padding: 8px 16px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, .3); background: transparent; color: #fff; font-size: .78rem; cursor: pointer; font-weight: 600; }
+.logout-btn:hover { background: rgba(255, 255, 255, .1); }
+
+.container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+.content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+  .back-link { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 999px; background: rgba(13, 43, 69, .08); color: var(--navy); text-decoration: none; font-size: .9rem; font-weight: 700; margin-bottom: 16px; border: 1px solid transparent; transition: all .2s ease; box-shadow: 0 10px 24px rgba(13, 43, 69, .08); }
+  .back-link:hover { background: var(--navy); color: #fff; border-color: var(--navy); transform: translateY(-1px); }
+
+.pg-hd { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.pg-hd h2 { font-family: 'Merriweather', serif; font-size: 1.6rem; color: var(--navy); }
+.pg-hd p { font-size: .9rem; color: var(--muted); margin-top: 4px; }
+
+.card { background: #fff; border-radius: var(--r-lg); border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(13,43,69,.08); overflow: hidden; }
+.card-head { padding: 16px 24px; border-bottom: 1px solid var(--border); background: #fcfdfe; display: flex; justify-content: space-between; align-items: center; }
+.card-head h3 { font-family: 'Merriweather', serif; font-size: 1rem; color: var(--navy); }
+.meta { font-size: .75rem; color: var(--muted); }
+
+.filter-bar { padding: 16px 24px; background: #fafcff; border-bottom: 1px solid var(--border); display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+.fg { display: flex; flex-direction: column; gap: 5px; }
+.fg label { font-size: .7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+.fg input, .fg select { padding: 8px 12px; border: 1.5px solid var(--border2); border-radius: var(--r); font-family: inherit; font-size: .8rem; }
+.fg input:focus, .fg select:focus { outline: none; border-color: var(--navy); }
+
+.table-wrap { overflow-x: auto; position: relative; min-height: 200px; }
+.loading { display: flex; align-items: center; justify-content: center; padding: 40px; color: var(--muted); }
+.spinner { border: 3px solid var(--border); border-top: 3px solid var(--navy); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+th { background: var(--navy); color: #fff; text-align: left; padding: 12px 16px; font-weight: 600; font-size: .75rem; text-transform: uppercase; letter-spacing: .5px; }
+td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--txt2); }
+tr:last-child td { border-bottom: none; }
+tr:hover { background: #f8fafc; cursor: pointer; }
+tr.selected { background: var(--gold2); color: #fff; }
+tr.selected:hover { background: var(--gold3); }
+
+.photo-thumb { width: 32px; height: 40px; border-radius: 4px; object-fit: cover; border: 1px solid var(--border); }
+.pill { padding: 3px 10px; border-radius: 999px; font-size: .7rem; font-weight: 700; display: inline-block; }
+.pill-Science { background: #dbeafe; color: #1e40af; }
+.pill-Humanities { background: #fef3c7; color: #92400e; }
+.pill-Business { background: #d1fae5; color: #065f46; }
+
+.profile-card { padding: 24px; text-align: center; }
+.profile-photo { width: 120px; height: 150px; border-radius: 8px; object-fit: cover; border: 3px solid var(--gold2); margin: 0 auto 16px; display: block; }
+.profile-name { font-family: 'Merriweather', serif; font-size: 1.4rem; color: var(--navy); margin-bottom: 8px; }
+.profile-roll { font-size: .9rem; color: var(--muted); margin-bottom: 16px; }
+.profile-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: left; }
+.detail-item { background: var(--slate); padding: 8px 12px; border-radius: var(--r); }
+.detail-label { font-size: .7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 2px; }
+.detail-value { font-size: .85rem; color: var(--txt); font-weight: 600; }
+.profile-placeholder { display: flex; align-items: center; justify-content: center; height: 300px; color: var(--muted); font-size: 1rem; }
+
+@media(max-width:768px){
+  .content-grid { grid-template-columns: 1fr; }
+  .filter-bar { padding: 12px; gap: 8px; }
+  .fg { flex: 1 1 calc(50% - 8px); min-width: 140px; }
+}
+</style>
+
+<style>
+*,:before,:after{border-radius:0 !important;}
+</style>
+
+  <!-- PAGE TRANSITION LOADER -->
+  <style>
+    .page-loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.72);backdrop-filter:blur(2px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .24s ease,visibility .24s ease;z-index:9999;}
+    .page-loader.visible{opacity:1;visibility:visible;pointer-events:auto;}
+    .page-loader-inner{display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px 20px;background:rgba(255,255,255,.92);border:1px solid rgba(15,23,42,.1); box-shadow:0 12px 32px rgba(15,23,42,.12);}
+    .page-loader-dots{display:flex;gap:8px;}
+    .page-loader-dot{width:12px;height:12px;background:var(--navy);animation:page-loader-pulse 1s ease-in-out infinite both;}
+    .page-loader-dot:nth-child(2){animation-delay:.16s;}
+    .page-loader-dot:nth-child(3){animation-delay:.32s;}
+    @keyframes page-loader-pulse{0%,100%{transform:scale(1);opacity:.4;}50%{transform:scale(1.45);opacity:1;}}
+    .page-loader-text{font-size:.92rem;color:var(--navy);font-weight:700;letter-spacing:.02em;}
+  </style>
+</head>
+<body>
+  <div id="page-loader" class="page-loader" aria-hidden="true">
+    <div class="page-loader-inner">
+      <div class="page-loader-dots">
+        <span class="page-loader-dot"></span>
+        <span class="page-loader-dot"></span>
+        <span class="page-loader-dot"></span>
+      </div>
+      <div class="page-loader-text">Loading…</div>
+    </div>
+  </div>
+
+
+<div class="top-nav-bar">
+  <div class="top-nav-logo">
+    <div class="top-nav-logo-img"><img src="https://www.muamc.edu.bd/wp-content/uploads/2025/01/logo-muam-scaled.jpeg" alt="Logo"></div>
+    <div class="top-nav-logo-text">
+      <h1>Moinuddin Adarsha Mohila College</h1>
+      <p>Student Database System</p>
+    </div>
+  </div>
+  <div class="top-nav-admin">
+    <div class="top-nav-admin-info">
+      <div class="top-nav-avatar" id="user-avatar">T</div>
+      <div>
+        <div class="top-nav-name" id="user-name">Teacher</div>
+        <div class="top-nav-role" id="user-role">Marks Entry</div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+  <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+
+  <div class="pg-hd">
+    <h2>Student Database</h2>
+    <p>Complete directory of students. Use the filters to find specific groups or individuals.</p>
+  </div>
+
+  <div class="content-grid">
+    <div class="card">
+      <div class="card-head">
+        <h3>Student List</h3>
+        <span class="meta" id="student-count">0 students found</span>
+      </div>
+
+      <div class="filter-bar">
+        <div class="fg" style="flex: 1.5; min-width: 200px;">
+          <label>Search Name/Roll</label>
+          <input type="text" id="q-search" placeholder="Enter student name or roll..." oninput="loadData()">
+        </div>
+        <div class="fg">
+          <label>Class</label>
+          <select id="q-class" onchange="loadData()">
+            <option value="">All Classes</option>
+            <option value="Class-XI">Class XI</option>
+            <option value="Class-XII">Class XII</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Group</label>
+          <select id="q-group" onchange="loadData()">
+            <option value="">All Groups</option>
+            <option value="Science">Science</option>
+            <option value="Humanities">Humanities</option>
+            <option value="Business">Business Studies</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Session</label>
+          <select id="q-session" onchange="loadData()">
+            <option value="">All Sessions</option>
+            <option value="2023–2024">2023–2024</option>
+            <option value="2024–2025">2024–2025</option>
+            <option value="2025–2026">2025–2026</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div id="loading" class="loading" style="display: none;">
+          <div class="spinner"></div>
+          <span style="margin-left: 8px;">Loading students...</span>
+        </div>
+        <table id="student-table" style="display: none;">
+          <thead>
+            <tr>
+              <th>Photo</th>
+              <th>Roll</th>
+              <th>Name</th>
+              <th>Class</th>
+              <th>Group</th>
+              <th>Section</th>
+              <th>Session</th>
+              <th>Contact</th>
+            </tr>
+          </thead>
+          <tbody id="db-body">
+            <!-- Rows injected here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>Student Profile</h3>
+      </div>
+      <div id="profile-content" class="profile-placeholder">
+        Select a student from the list to view their profile
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let allStudents = [];
+let selectedStudent = null;
+
+async function doLogout() {
+  if (!confirm('Are you sure you want to logout?')) return;
+  await fetch('/api/logout', { method: 'POST' });
+  window.location.href = 'login.html';
+}
+
+async function loadData() {
+  const q = document.getElementById('q-search').value;
+  const cls = document.getElementById('q-class').value;
+  const grp = document.getElementById('q-group').value;
+  const ses = document.getElementById('q-session').value;
+
+  // Only load if at least one filter is applied
+  if (!q && !cls && !grp && !ses) {
+    allStudents = [];
+    renderTable();
+    return;
+  }
+
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('student-table').style.display = 'none';
+
+  try {
+    const params = new URLSearchParams();
+    if (q) params.append('q', q);
+    if (cls) params.append('cls', cls);
+    if (grp) params.append('group', grp);
+    if (ses) params.append('session', ses);
+
+    const res = await fetch(`/api/students?${params}`);
+    const data = await res.json();
+    if(data.ok) {
+      allStudents = data.data || [];
+      renderTable();
+    }
+  } catch(e) { console.error(e); }
+  finally {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('student-table').style.display = 'table';
+  }
+}
+
+function renderTable() {
+  const tbody = document.getElementById('db-body');
+  const table = document.getElementById('student-table');
+  const loading = document.getElementById('loading');
+
+  tbody.innerHTML = allStudents.map(s => `
+    <tr onclick="selectStudent('${s.id}')">
+      <td><img src="${s.photo || 'https://via.placeholder.com/32x40?text=No'}" class="photo-thumb"></td>
+      <td style="font-weight:700;">${s.roll}</td>
+      <td style="font-weight:600; color:var(--navy);">${s.name}</td>
+      <td>${s.cls}</td>
+      <td><span class="pill pill-${s.group}">${s.group}</span></td>
+      <td>${s.section || '—'}</td>
+      <td>${s.session}</td>
+      <td>${s.phone || '—'}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('student-count').textContent = `${allStudents.length} students found`;
+
+  if (allStudents.length > 0) {
+    table.style.display = 'table';
+    loading.style.display = 'none';
+  } else {
+    table.style.display = 'none';
+    loading.style.display = 'none';
+  }
+}
+
+function selectStudent(id) {
+  selectedStudent = allStudents.find(s => s.id === id);
+  // Remove previous selection
+  document.querySelectorAll('#db-body tr').forEach(tr => tr.classList.remove('selected'));
+  // Add selection to clicked row
+  event.currentTarget.classList.add('selected');
+  showProfile();
+}
+
+function showProfile() {
+  const content = document.getElementById('profile-content');
+  if (!selectedStudent) {
+    content.className = 'profile-placeholder';
+    content.innerHTML = 'Select a student from the list to view their profile';
+    return;
+  }
+
+  content.className = 'profile-card';
+  content.innerHTML = `
+    <img src="${selectedStudent.photo || 'https://via.placeholder.com/120x150?text=No'}" class="profile-photo" alt="Student Photo">
+    <div class="profile-name">${selectedStudent.name}</div>
+    <div class="profile-roll">Roll: ${selectedStudent.roll}</div>
+    <div class="profile-details">
+      <div class="detail-item">
+        <div class="detail-label">Class</div>
+        <div class="detail-value">${selectedStudent.cls}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Group</div>
+        <div class="detail-value">${selectedStudent.group}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Section</div>
+        <div class="detail-value">${selectedStudent.section || 'N/A'}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Session</div>
+        <div class="detail-value">${selectedStudent.session}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Phone</div>
+        <div class="detail-value">${selectedStudent.phone || 'N/A'}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Registration</div>
+        <div class="detail-value">${selectedStudent.reg || 'N/A'}</div>
+      </div>
+    </div>
+  `;
+}
+
+(async function init(){
+  const res = await fetch('/api/auth-status');
+  const auth = await res.json();
+  if(!auth.authenticated) window.location.href = 'login.html';
+  const isAdmin = auth.role === 'admin';
+  document.getElementById('user-name').textContent = isAdmin ? 'Admin' : 'Teacher';
+  document.getElementById('user-role').textContent = isAdmin ? 'System Admin' : 'Marks Entry';
+  document.getElementById('user-avatar').textContent = isAdmin ? 'A' : 'T';
+  // Don't load data initially
+})();
+</script>
+
+  <script>
+    (function(){
+      const loader = document.getElementById('page-loader');
+      if(!loader) return;
+      const show = () => loader.classList.add('visible');
+      const hide = () => loader.classList.remove('visible');
+      document.addEventListener('click', function(event){
+        const anchor = event.target.closest('a');
+        if(!anchor || !anchor.href) return;
+        const target = anchor.getAttribute('target');
+        const href = anchor.getAttribute('href');
+        if(target === '_blank' || target === '_top' || target === '_parent' || target === '_self' && anchor.hasAttribute('download')) return;
+        if(!href || href.trim().startsWith('javascript:') || href.trim().startsWith('#')) return;
+        const url = new URL(anchor.href, location.href);
+        if(url.origin !== location.origin) return;
+        if(url.pathname === location.pathname && url.search === location.search) return;
+        event.preventDefault();
+        show();
+        setTimeout(()=> { window.location.href = url.href; }, 180);
+      }, true);
+      window.addEventListener('beforeunload', show);
+      window.addEventListener('pageshow', hide);
+    })();
+  </script>
+</body>
+</html>
