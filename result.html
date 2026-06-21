@@ -815,9 +815,9 @@ function buildResultCardHTML(student, marks, examType, merit) {
     const cq     = parseFloat(m.cq)   || 0;
     const mcq    = parseFloat(m.mcq)  || 0;
     const prac   = parseFloat(m.prac) || 0;
-    const theory = cq + mcq;   // FIX Bug2: grade on theory only, not total (HSC system)
+    const theory = cq + mcq;
     const total  = theory + prac;
-    const grade  = absent ? {letter: 'Ab', gpa: 0.0} : calculateGrade(theory);
+    const grade  = absent ? {letter: 'Ab', gpa: 0.0} : calculateGrade(total);
 
     if (!absent) {
       totalMarks   += total;

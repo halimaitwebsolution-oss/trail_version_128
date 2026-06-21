@@ -1179,7 +1179,7 @@ SUBJECT_LIST = {
         {'name': 'Bangla 2nd Paper',      'code': '102', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
         {'name': 'English 1st Paper',     'code': '107', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
         {'name': 'English 2nd Paper',     'code': '108', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
-        {'name': 'ICT',                   'code': '275', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
+        {'name': 'ICT',                   'code': '275', 'hasPrac': True,  'cqMax': 50, 'mcqMax': 25, 'optional': False},
         {'name': 'Physics 1st Paper',     'code': '174', 'hasPrac': True,  'cqMax': 50, 'mcqMax': 25, 'optional': False},
         {'name': 'Physics 2nd Paper',     'code': '175', 'hasPrac': True,  'cqMax': 50, 'mcqMax': 25, 'optional': False},
         {'name': 'Chemistry 1st Paper',   'code': '176', 'hasPrac': True,  'cqMax': 50, 'mcqMax': 25, 'optional': False},
@@ -1194,7 +1194,7 @@ SUBJECT_LIST = {
         {'name': 'Bangla 2nd Paper',             'code': '102', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
         {'name': 'English 1st Paper',            'code': '107', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
         {'name': 'English 2nd Paper',            'code': '108', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
-        {'name': 'ICT',                          'code': '275', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
+        {'name': 'ICT',                          'code': '275', 'hasPrac': True,  'cqMax': 50, 'mcqMax': 25, 'optional': False},
         {'name': 'Civics & Good Governance 1st', 'code': '269', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
         {'name': 'Civics & Good Governance 2nd', 'code': '270', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
         {'name': 'History',                      'code': '304', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
@@ -1213,7 +1213,7 @@ SUBJECT_LIST = {
         {'name': 'Bangla 2nd Paper',                 'code': '102', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
         {'name': 'English 1st Paper',                'code': '107', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
         {'name': 'English 2nd Paper',                'code': '108', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
-        {'name': 'ICT',                              'code': '275', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
+        {'name': 'ICT',                              'code': '275', 'hasPrac': True,  'cqMax': 50, 'mcqMax': 25, 'optional': False},
         {'name': 'Accounting 1st Paper',             'code': '253', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
         {'name': 'Accounting 2nd Paper',             'code': '254', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
         {'name': 'Business Org. & Mgmt 1st',         'code': '277', 'hasPrac': False, 'cqMax': 70, 'mcqMax': 30, 'optional': False},
@@ -1282,7 +1282,7 @@ def export_csv():
                     prac   = min(int(m.get('prac') or 0), 25) if sub['hasPrac'] else 0
                     theory = cq + mcq
                     tot    = theory + prac
-                    lg, gp = _grade_letter(theory)
+                    lg, gp = _grade_letter(tot)
                     absent = not m or (m.get('cq', '') == '' and m.get('mcq', '') == '')
                     is_optional = (sub.get('optional', False) and optional_selected
                                    and sub['code'] == optional_selected)
@@ -1355,7 +1355,7 @@ def _compute_student_result(sid, marks_data, group, optional_subject=''):
         prac   = min(int(m.get('prac') or 0), 25) if sub.get('hasPrac') else 0
         theory = cq + mcq
         tot    = theory + prac
-        lg, gp = _grade_letter(theory)
+        lg, gp = _grade_letter(tot)
 
         # An optional subject that is NOT the chosen one is skipped (not graded)
         is_unchosen_optional = (
